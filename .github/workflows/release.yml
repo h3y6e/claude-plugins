@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - labeled
+      - unlabeled
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  tagpr:
+    strategy:
+      matrix:
+        plugin:
+          - dir: mods/mermaid-svg
+            branch: tagpr-from-mods-mermaid-svg-
+    concurrency:
+      group: release-${{ matrix.plugin.dir }}
+      cancel-in-progress: false
+    runs-on: ubuntu-slim
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - id: app-token
+        if: >-
+          github.event_name != 'pull_request' ||
+          (startsWith(github.event.label.name, 'tagpr:') &&
+          startsWith(github.head_ref, matrix.plugin.branch) &&
+          github.event.pull_request.head.repo.full_name == github.repository)
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-issues: read
+          permission-pull-requests: write
+      - if: steps.app-token.outcome == 'success'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.base_ref }}
+          persist-credentials: false
+      - if: steps.app-token.outcome == 'success'
+        uses: Songmu/tagpr@1fcd7292d1fe8ea9a8313eef46b8d80b7a15d227 # v1.21.3
+        with:
+          config: ${{ matrix.plugin.dir }}/.tagpr
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
