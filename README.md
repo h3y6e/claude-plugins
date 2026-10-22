@@ -14,6 +14,7 @@ claude plugin install mermaid-svg@h3y6e
 ## Develop
 
 ```sh
+mise install
 aube install
 aubr build
 aubr lint
