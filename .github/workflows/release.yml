@@ -16,10 +16,11 @@ jobs:
   tagpr:
     strategy:
       matrix:
-        mod:
-          - mermaid-svg
+        plugin:
+          - dir: mods/mermaid-svg
+            branch: tagpr-from-mods-mermaid-svg-
     concurrency:
-      group: release-${{ matrix.mod }}
+      group: release-${{ matrix.plugin.dir }}
       cancel-in-progress: false
     runs-on: ubuntu-slim
     timeout-minutes: 5
@@ -30,7 +31,7 @@ jobs:
         if: >-
           github.event_name != 'pull_request' ||
           (startsWith(github.event.label.name, 'tagpr:') &&
-          startsWith(github.head_ref, format('tagpr-from-mods-{0}-', matrix.mod)) &&
+          startsWith(github.head_ref, matrix.plugin.branch) &&
           github.event.pull_request.head.repo.full_name == github.repository)
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
@@ -47,6 +48,6 @@ jobs:
       - if: steps.app-token.outcome == 'success'
         uses: Songmu/tagpr@1fcd7292d1fe8ea9a8313eef46b8d80b7a15d227 # v1.21.3
         with:
-          config: mods/${{ matrix.mod }}/.tagpr
+          config: ${{ matrix.plugin.dir }}/.tagpr
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
