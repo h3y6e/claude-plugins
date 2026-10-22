@@ -1,0 +1,7 @@
+[tagpr]
+	vPrefix = false
+	releaseBranch = main
+	tagPrefix = mods/mermaid-svg
+	versionFile = mods/mermaid-svg/.claude-plugin/plugin.json,mods/mermaid-svg/package.json
+	changelog = false
+	calendarVersioning = YYYY.MM.MICRO

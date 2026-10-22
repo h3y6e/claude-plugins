@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - labeled
+      - unlabeled
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  tagpr:
+    strategy:
+      matrix:
+        mod:
+          - mermaid-svg
+    concurrency:
+      group: release-${{ matrix.mod }}
+      cancel-in-progress: false
+    environment: release
+    runs-on: ubuntu-slim
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - id: app-token
+        if: >-
+          github.event_name != 'pull_request' ||
+          (startsWith(github.event.label.name, 'tagpr:') &&
+          startsWith(github.head_ref, format('tagpr-from-mods-{0}-', matrix.mod)) &&
+          github.event.pull_request.head.repo.full_name == github.repository)
+        uses: actions/create-github-app-token@v3.3.0
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-issues: read
+          permission-pull-requests: write
+      - if: steps.app-token.outcome == 'success'
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.base_ref }}
+          persist-credentials: false
+      - if: steps.app-token.outcome == 'success'
+        uses: Songmu/tagpr@v1.21.3
+        with:
+          config: mods/${{ matrix.mod }}/.tagpr
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
