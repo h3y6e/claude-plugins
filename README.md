@@ -20,6 +20,3 @@ aubr lint
 mise run test
 mise run validate
 ```
-
-`hooks/register.mjs` is committed build output, minified without mangling as Claude Code reads `$`, `on` and `next` by name.
-Type checking needs the types Claude Code writes on `claude --plugin-dir <mod>`, so CI skips it.
