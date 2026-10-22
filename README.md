@@ -18,6 +18,7 @@ mise install
 aube install
 aubr build
 aubr lint
+jactionlint
 mise run test
 mise run validate
 ```
