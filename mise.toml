@@ -1,0 +1,10 @@
+[tools]
+aube = "2.8.1"
+claude = "2.1.306"
+node = "26.12.1"
+
+[tasks.test]
+run = "for m in mods/*/; do claude plugin test $m || exit 1; done"
+
+[tasks.validate]
+run = "claude plugin validate . && for m in mods/*/; do claude plugin validate $m || exit 1; done"

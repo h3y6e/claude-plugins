@@ -1,0 +1,4 @@
+{
+  "name": "mermaid-svg",
+  "description": "Writes each mermaid block in Claude's replies to an SVG file with pele and links the file below the block; the reply itself still shows the source"
+}

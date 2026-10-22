@@ -1,0 +1,5 @@
+{
+  "name": "h3y6e",
+  "owner": { "name": "h3y6e" },
+  "plugins": [{ "name": "mermaid-svg", "source": "./mods/mermaid-svg" }]
+}
