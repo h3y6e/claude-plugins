@@ -1,5 +1,5 @@
 {
   "name": "mermaid-svg",
   "version": "2026.10.0",
-  "description": "Writes each mermaid block in Claude's replies to an SVG file with pele and links the file below the block; the reply itself still shows the source"
+  "description": "Links an SVG of each mermaid block in Claude's replies, and shows it as an image in the terminal"
 }

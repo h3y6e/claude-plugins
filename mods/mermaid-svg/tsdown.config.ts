@@ -1,7 +1,7 @@
 import { defineConfig } from "tsdown";
 
 export default defineConfig({
-  entry: "./src/register.ts",
+  entry: "./src/register.tsx",
   outDir: "hooks",
   clean: false,
   platform: "neutral",
