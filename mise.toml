@@ -1,6 +1,7 @@
 [tools]
 aube = "2.8.1"
 claude = "2.1.306"
+jactionlint = "2.3.0"
 node = "26.12.1"
 
 [tasks.test]
