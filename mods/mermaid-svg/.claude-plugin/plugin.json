@@ -1,5 +1,5 @@
 {
   "name": "mermaid-svg",
-  "version": "2026.10.0",
+  "version": "2026.10.1",
   "description": "Links an SVG of each mermaid block in Claude's replies, and shows it as an image in the terminal"
 }
