@@ -17,7 +17,7 @@ const draw = async ($: EngineInterface, block: string) => {
   }
   const tmp = (await $.env.get("TMPDIR")) ?? (await $.env.get("TEMP")) ?? "/tmp";
   const hash = new Uint8Array(await crypto.subtle.digest("SHA-1", new TextEncoder().encode(svg)));
-  const path = `${tmp.replace(/[\\/]+$/, "")}/mermaid-svg/${hash.toHex()}.svg`;
+  const path = `${tmp.replace(/[\\/]+$/, "")}/mermaid/${hash.toHex()}.svg`;
   await $.fs.write(path, svg);
   const url = new URL(`file:///${path.replaceAll("\\", "/").replace(/^\/+/, "")}`);
   const [, width, height] = svg.match(/width="([\d.]+)" height="([\d.]+)"/)!.map(Number);

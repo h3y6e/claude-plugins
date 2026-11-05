@@ -1,0 +1,7 @@
+[tagpr]
+	vPrefix = false
+	releaseBranch = main
+	tagPrefix = mods/mermaid
+	versionFile = mods/mermaid/.claude-plugin/plugin.json,mods/mermaid/package.json
+	changelog = false
+	calendarVersioning = YYYY.MM.MICRO

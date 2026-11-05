@@ -10,7 +10,7 @@ const LINK = (url: string) => `[\u{F02E9} SVG ↗](${url})`;
 
 const reply = (text: string, surface: "terminal" | "desktop" = "desktop") =>
   ({
-    plugin: "mermaid-svg",
+    plugin: "mermaid",
     component: "AssistantMessage",
     surface,
     props: { text, isFirstOfReply: true },
@@ -53,7 +53,7 @@ test("outside the terminal, when a reply holds a mermaid block pele can draw, th
   // Assert
   const text = (await ui.find({ type: "Text", text: /before/ }))!.text;
   expect(written).toHaveLength(1);
-  expect(written[0]).toMatch(new RegExp(`^/var/folders/T/mermaid-svg/${HASH}\\.svg$`));
+  expect(written[0]).toMatch(new RegExp(`^/var/folders/T/mermaid/${HASH}\\.svg$`));
   expect(text).toBe(`before\n${FLOW}\n${LINK(`file://${written[0]}`)}\nmiddle\n${BROKEN}\nafter`);
   await ui.unmount();
 });
@@ -67,7 +67,7 @@ test("when TMPDIR is unset, as on Linux, the SVG goes under /tmp", async ($, on)
 
   // Assert
   const text = (await ui.find({ type: "Text", text: /mermaid/ }))!.text;
-  expect(written[0]).toMatch(new RegExp(`^/tmp/mermaid-svg/${HASH}\\.svg$`));
+  expect(written[0]).toMatch(new RegExp(`^/tmp/mermaid/${HASH}\\.svg$`));
   expect(text).toBe(`${FLOW}\n${LINK(`file://${written[0]}`)}`);
   await ui.unmount();
 });
@@ -81,7 +81,7 @@ test("when only TEMP is set, as on Windows, the link is a file URL with its driv
 
   // Assert
   const text = (await ui.find({ type: "Text", text: /mermaid/ }))!.text;
-  expect(text).toMatch(new RegExp(`\\(file:///C:/Users/me/Temp/mermaid-svg/${HASH}\\.svg\\)$`));
+  expect(text).toMatch(new RegExp(`\\(file:///C:/Users/me/Temp/mermaid/${HASH}\\.svg\\)$`));
   await ui.unmount();
 });
 
