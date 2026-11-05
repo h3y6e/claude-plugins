@@ -40,7 +40,7 @@ const flatten = (svg: string) => {
 
 const toPng = async ($: EngineInterface, svg: string) => {
   const { exitCode, stdout, stderr } = await $.process.run(
-    ["magick", "-density", "192", "-background", "white", "svg:-", "INLINE:PNG:-"],
+    ["magick", "-density", "192", "-background", "none", "svg:-", "INLINE:PNG:-"],
     { stdin: flatten(svg) },
   );
   if (exitCode !== 0) throw new Error(`magick: ${stderr}`);
