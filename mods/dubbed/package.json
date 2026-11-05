@@ -1,0 +1,9 @@
+{
+  "name": "dubbed",
+  "version": "2026.11.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc"
+  }
+}
