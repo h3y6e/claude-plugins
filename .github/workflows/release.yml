@@ -17,8 +17,8 @@ jobs:
     strategy:
       matrix:
         plugin:
-          - dir: mods/mermaid-svg
-            branch: tagpr-from-mods-mermaid-svg-
+          - dir: mods/mermaid
+            branch: tagpr-from-mods-mermaid-
           - dir: mods/dubbed
             branch: tagpr-from-mods-dubbed-
     concurrency:

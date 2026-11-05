@@ -24,7 +24,7 @@ importers:
         specifier: 7.0.2
         version: 7.0.2
 
-  mods/mermaid-svg:
+  mods/mermaid:
     devDependencies:
       pele:
         specifier: 1.8.0
