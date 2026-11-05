@@ -1,0 +1,7 @@
+[tagpr]
+	vPrefix = false
+	releaseBranch = main
+	tagPrefix = mods/ja-subtitles
+	versionFile = mods/ja-subtitles/.claude-plugin/plugin.json
+	changelog = false
+	calendarVersioning = YYYY.MM.MICRO

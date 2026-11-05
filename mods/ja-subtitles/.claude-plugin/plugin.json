@@ -1,0 +1,20 @@
+{
+  "name": "ja-subtitles",
+  "version": "2026.11.0",
+  "description": "Shows Claude's non-Japanese replies in Japanese, with the original folded below",
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "endpoint": {
+      "type": "string",
+      "title": "Completions endpoint",
+      "description": "OpenAI-compatible /v1/completions URL serving PLaMo 3 Translate",
+      "default": "http://127.0.0.1:9931/v1/completions"
+    },
+    "model": {
+      "type": "string",
+      "title": "Model",
+      "description": "Model name the endpoint serves PLaMo 3 Translate under",
+      "default": "plamo-3-translate-2b"
+    }
+  }
+}
