@@ -8,20 +8,35 @@ const FENCE = /^(`{3,}[^\n]*\n(?:[\s\S]*?\n)?`{3,})[ \t]*$/m;
 const GAP = /(\s*\n\s*\n\s*|^\s+|\s+$)/;
 const CODE = /`[^`\n]*`/g;
 const KANA = /[\p{Script=Hiragana}\p{Script=Katakana}]/u;
+const KANJI = /\p{Script=Han}/u;
 const LATIN = /\p{Script=Latin}/u;
+
+const LANGS = {
+  ja: {
+    lang: "ja",
+    needsDub: (prose: string) => LATIN.test(prose) && !KANA.test(prose),
+    original: "原文",
+  },
+  en: {
+    lang: "en",
+    needsDub: (prose: string) => KANA.test(prose) || KANJI.test(prose),
+    original: "Original",
+  },
+};
+let dub: (typeof LANGS)[keyof typeof LANGS];
 
 const isExpanded = atom({ plugin: "dubbed", key: "isExpanded" } as const, false);
 
 const paragraphs = (text: string) =>
   text.split(FENCE).flatMap((part, i) => (i % 2 ? [part] : part.split(GAP).filter(Boolean)));
 
-const isForeign = (paragraph: string) => {
+const isSource = (paragraph: string) => {
   if (paragraph.startsWith("```")) return false;
   const prose = paragraph.replace(CODE, "");
-  return LATIN.test(prose) && !KANA.test(prose);
+  return dub.needsDub(prose);
 };
 
-const foreign = (text: string) => paragraphs(text).filter(isForeign);
+const sourcesOf = (text: string) => paragraphs(text).filter(isSource);
 
 const finished = (streamed: string) => {
   const end = streamed.lastIndexOf("\n\n");
@@ -42,9 +57,9 @@ const translate = async ($: EngineInterface, source: string) => {
   const prompt = [
     pfml("dataset", "translation"),
     context && pfml("context", context),
-    ...history.flatMap(([s, t]) => [pfml("input", s), pfml("output", t, "ja")]),
+    ...history.flatMap(([s, t]) => [pfml("input", s), pfml("output", t, dub.lang)]),
     pfml("input", source),
-    pfml("output", "", "ja"),
+    pfml("output", "", dub.lang),
   ].join("");
   const res = await $.http.fetch(server.endpoint, {
     method: "POST",
@@ -95,6 +110,7 @@ const drain = async ($: EngineInterface) => {
 
 export const register: Register = (on, options) => {
   server = { endpoint: String(options.endpoint), model: String(options.model) };
+  dub = LANGS[options.lang as keyof typeof LANGS];
   on("prompt.submit", (_, e, next) => {
     if (!e.isMeta && !e.command) context = e.text.slice(-CONTEXT);
     return next(e);
@@ -107,7 +123,7 @@ export const register: Register = (on, options) => {
       if (chunk.kind === "text") {
         const streamed = (blocks.get(chunk.index) ?? "") + chunk.text;
         blocks.set(chunk.index, streamed);
-        request($, foreign(finished(streamed)));
+        request($, sourcesOf(finished(streamed)));
       }
       yield chunk;
     }
@@ -115,7 +131,7 @@ export const register: Register = (on, options) => {
 
   on("ui.render", { component: "AssistantMessage" }, async ($, e, next) => {
     const { text } = e.props;
-    const sources = foreign(text);
+    const sources = sourcesOf(text);
     if (e.props.onScreen !== null) request($, sources);
     if (sources.length === 0 || !sources.every((p) => translations.has(p))) return next(e);
     const translated = paragraphs(text)
@@ -132,7 +148,7 @@ export const register: Register = (on, options) => {
             <Button
               key="original"
               dimColor
-              label={isOpen ? "▾ 原文" : "▸ 原文"}
+              label={`${isOpen ? "▾" : "▸"} ${dub.original}`}
               onPress={() => update($, expanded, (v) => !v)}
             />
             {!isOpen && (

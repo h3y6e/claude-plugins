@@ -12,7 +12,7 @@ const reply = (text: string) =>
 
 const source = (prompt: string) =>
   prompt.match(
-    /<\|plamo:tag\|>input<\|plamo:msg\|>([^<]*)<\|plamo:tag\|>output<\|plamo:key\|>lang<\|plamo:val\|>ja<\|plamo:msg\|>$/,
+    /<\|plamo:tag\|>input<\|plamo:msg\|>([^<]*)<\|plamo:tag\|>output<\|plamo:key\|>lang<\|plamo:val\|>[a-z]+<\|plamo:msg\|>$/,
   )![1]!;
 
 const engine = (
@@ -121,6 +121,41 @@ test("when the folded original is pressed, it unfolds dimmed below the translati
   expect(original?.props.dimColor).toBe(true);
   await ui.unmount();
 });
+
+test(
+  "when the target language is English, a Japanese reply is drawn in English with the original folded under an English label",
+  { options: { lang: "en" } },
+  async ($, on) => {
+    // Arrange
+    const { prompts } = engine(on, { "テストを修正しました。": "I fixed the tests." });
+
+    // Act
+    const ui = await $.ui.mount(reply("テストを修正しました。"));
+
+    // Assert
+    expect(prompts[0]).toMatch(/<\|plamo:key\|>lang<\|plamo:val\|>en<\|plamo:msg\|>$/);
+    expect((await ui.find({ type: "Text", text: /^I fixed/ }))?.text).toBe("I fixed the tests.");
+    expect((await ui.find({ type: "Button" }))?.props.label).toBe("▸ Original");
+    await ui.unmount();
+  },
+);
+
+test(
+  "when the target language is English, an English reply is drawn as written without a translation",
+  { options: { lang: "en" } },
+  async ($, on) => {
+    // Arrange
+    const { prompts } = engine(on, {});
+
+    // Act
+    const ui = await $.ui.mount(reply("I fixed the tests."));
+
+    // Assert
+    expect(prompts).toEqual([]);
+    expect(await ui.find({ type: "Button" })).toBeUndefined();
+    await ui.unmount();
+  },
+);
 
 test("when a reply holds a code block, only the prose around it is translated", async ($, on) => {
   // Arrange
