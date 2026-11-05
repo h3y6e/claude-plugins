@@ -8,7 +8,7 @@
     "fmt:check": "oxfmt --check",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
-    "typecheck": "aubr -r typecheck"
+    "typecheck": "tsc && aubr -r typecheck"
   },
   "devDependencies": {
     "@types/node": "26.6.5",
