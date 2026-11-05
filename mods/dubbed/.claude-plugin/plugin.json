@@ -1,6 +1,6 @@
 {
   "name": "dubbed",
-  "version": "2026.11.0",
+  "version": "2026.11.1",
   "description": "Shows Claude's replies dubbed into Japanese or English, with the original folded below",
   "types": "./types/index.d.ts",
   "userConfig": {
