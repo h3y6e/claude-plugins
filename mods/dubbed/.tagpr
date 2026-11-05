@@ -2,6 +2,6 @@
 	vPrefix = false
 	releaseBranch = main
 	tagPrefix = mods/dubbed
-	versionFile = mods/dubbed/.claude-plugin/plugin.json
+	versionFile = mods/dubbed/.claude-plugin/plugin.json,mods/dubbed/package.json
 	changelog = false
 	calendarVersioning = YYYY.MM.MICRO

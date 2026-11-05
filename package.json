@@ -3,11 +3,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "aubr -r build",
+    "build": "aubr -r --if-present build",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "lint": "oxlint",
-    "lint:fix": "oxlint --fix"
+    "lint:fix": "oxlint --fix",
+    "typecheck": "tsc && aubr -r typecheck"
   },
   "devDependencies": {
     "@types/node": "26.6.5",

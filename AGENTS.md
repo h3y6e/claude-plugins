@@ -1,0 +1,1 @@
+- Type-aware lint needs `mods/*/.claude-plugin/types/`, which only `claude --plugin-dir mods/<mod>` (interactive) writes.
