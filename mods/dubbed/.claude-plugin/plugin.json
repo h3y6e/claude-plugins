@@ -1,9 +1,16 @@
 {
-  "name": "ja-subtitles",
+  "name": "dubbed",
   "version": "2026.11.0",
-  "description": "Shows Claude's non-Japanese replies in Japanese, with the original folded below",
+  "description": "Shows Claude's replies dubbed into Japanese or English, with the original folded below",
   "types": "./types/index.d.ts",
   "userConfig": {
+    "lang": {
+      "type": "string",
+      "title": "Language",
+      "description": "Language replies are dubbed into",
+      "options": ["ja", "en"],
+      "default": "ja"
+    },
     "endpoint": {
       "type": "string",
       "title": "Completions endpoint",
