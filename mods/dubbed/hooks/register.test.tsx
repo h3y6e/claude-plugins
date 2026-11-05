@@ -3,7 +3,7 @@ import { expect, test } from "claude-code/testing";
 
 const reply = (text: string) =>
   ({
-    plugin: "ja-subtitles",
+    plugin: "dubbed",
     component: "AssistantMessage",
     surface: "terminal",
     requestId: "m1",
@@ -112,7 +112,7 @@ test("when the folded original is pressed, it unfolds dimmed below the translati
   const ui = await $.ui.mount(reply("I fixed the tests."));
 
   // Act
-  await $.ui.press({ plugin: "ja-subtitles", key: "original" });
+  await $.ui.press({ plugin: "dubbed", key: "original" });
 
   // Assert
   expect((await ui.find({ type: "Button" }))?.props.label).toBe("▾ 原文");
@@ -227,7 +227,7 @@ test("when the translation server fails, the reply stays as written with one toa
   // Assert
   expect(shown).toBe("I fixed the tests.");
   expect(toasts).toHaveLength(1);
-  expect(toasts[0]).toMatch(/^ja-subtitles: Error: .*503 model not loaded$/);
+  expect(toasts[0]).toMatch(/^dubbed: Error: .*503 model not loaded$/);
   expect((await ui.find({ type: "Text" }))?.text).toBe("テストを修正しました。");
   await ui.unmount();
 });

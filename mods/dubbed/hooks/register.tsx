@@ -10,7 +10,7 @@ const CODE = /`[^`\n]*`/g;
 const KANA = /[\p{Script=Hiragana}\p{Script=Katakana}]/u;
 const LATIN = /\p{Script=Latin}/u;
 
-const isExpanded = atom({ plugin: "ja-subtitles", key: "isExpanded" } as const, false);
+const isExpanded = atom({ plugin: "dubbed", key: "isExpanded" } as const, false);
 
 const paragraphs = (text: string) =>
   text.split(FENCE).flatMap((part, i) => (i % 2 ? [part] : part.split(GAP).filter(Boolean)));
@@ -87,7 +87,7 @@ const drain = async ($: EngineInterface) => {
       isFailing = false;
       $.ui.invalidate("ui.render");
     } catch (error) {
-      if (!isFailing) $.ui.toast(`ja-subtitles: ${String(error)}`);
+      if (!isFailing) $.ui.toast(`dubbed: ${String(error)}`);
       isFailing = true;
     }
   }

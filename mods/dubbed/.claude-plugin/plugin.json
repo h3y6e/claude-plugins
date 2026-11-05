@@ -1,5 +1,5 @@
 {
-  "name": "ja-subtitles",
+  "name": "dubbed",
   "version": "2026.11.0",
   "description": "Shows Claude's non-Japanese replies in Japanese, with the original folded below",
   "types": "./types/index.d.ts",
