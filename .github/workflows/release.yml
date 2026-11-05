@@ -19,6 +19,8 @@ jobs:
         plugin:
           - dir: mods/mermaid-svg
             branch: tagpr-from-mods-mermaid-svg-
+          - dir: mods/ja-subtitles
+            branch: tagpr-from-mods-ja-subtitles-
     concurrency:
       group: release-${{ matrix.plugin.dir }}
       cancel-in-progress: false

@@ -2,13 +2,15 @@
 
 My [Claude Code plugins](https://code.claude.com/docs/en/plugins/overview).
 
-| Plugin                          | What it does                                      |
-| ------------------------------- | ------------------------------------------------- |
-| [mermaid-svg](mods/mermaid-svg) | Links mermaid blocks in replies to an SVG by pele |
+| Plugin                            | What it does                                                  |
+| --------------------------------- | ------------------------------------------------------------- |
+| [mermaid-svg](mods/mermaid-svg)   | Links mermaid blocks in replies to an SVG by pele             |
+| [ja-subtitles](mods/ja-subtitles) | Shows non-Japanese replies in Japanese, original folded below |
 
 ```sh
 claude plugin marketplace add h3y6e/claude-plugins
 claude plugin install mermaid-svg@h3y6e
+claude plugin install ja-subtitles@h3y6e
 ```
 
 ## Develop
