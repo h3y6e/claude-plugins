@@ -1,24 +1,24 @@
 # dubbed
 
-Shows Claude's replies dubbed into Japanese or English, with the original folded below. The reply itself is left as written.
+Claude の返信を日本語か英語に訳して表示し、原文はその下に折りたたみます。返信そのものは書き換えません。
 
-![dubbed example](assets/example.png)
+![dubbed の例](assets/example.png)
 
-## Install
+## インストール
 
 ```sh
 claude plugin marketplace add h3y6e/claude-plugins
 claude plugin install dubbed@h3y6e
 ```
 
-It translates with [PLaMo 3 Translate](https://huggingface.co/collections/pfnet/plamo-3-translate), so serve it on an OpenAI-compatible completions endpoint, e.g. with [llama.cpp](https://github.com/ggml-org/llama.cpp).
+翻訳には [PLaMo 3 Translate](https://huggingface.co/collections/pfnet/plamo-3-translate) を使うので、[llama.cpp](https://github.com/ggml-org/llama.cpp) などで OpenAI 互換の completions エンドポイントから提供してください。
 
-## Settings
+## 設定
 
-Set in `/config`.
+`/config` で設定します。
 
-| Key        | Default                                | What it sets                                    |
-| ---------- | -------------------------------------- | ----------------------------------------------- |
-| `lang`     | `ja`                                   | Language replies are dubbed into, `ja` or `en`  |
-| `endpoint` | `http://127.0.0.1:9931/v1/completions` | `/v1/completions` URL serving PLaMo 3 Translate |
-| `model`    | `plamo-3-translate-2b`                 | Model name the endpoint serves it under         |
+| キー       | 既定値                                 | 内容                                                  |
+| ---------- | -------------------------------------- | ----------------------------------------------------- |
+| `lang`     | `ja`                                   | 返信の翻訳先の言語（`ja` か `en`）                    |
+| `endpoint` | `http://127.0.0.1:9931/v1/completions` | PLaMo 3 Translate を提供する `/v1/completions` の URL |
+| `model`    | `plamo-3-translate-2b`                 | エンドポイント上のモデル名                            |

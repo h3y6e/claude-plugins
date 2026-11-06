@@ -43,7 +43,7 @@ const engine = (on: On, env: Record<string, string>) => {
   return { written, converted };
 };
 
-test("outside the terminal, when a reply holds a mermaid block pele can draw, the engine draws it with a link to its SVG below the block", async ($, on) => {
+test("ターミナル外で、返信に pele が描ける mermaid ブロックがあると、エンジンはブロックの下に SVG へのリンクを付けて描画する", async ($, on) => {
   // Arrange
   const { written } = engine(on, { TMPDIR: "/var/folders/T/" });
 
@@ -58,7 +58,7 @@ test("outside the terminal, when a reply holds a mermaid block pele can draw, th
   await ui.unmount();
 });
 
-test("when TMPDIR is unset, as on Linux, the SVG goes under /tmp", async ($, on) => {
+test("Linux のように TMPDIR が未設定だと、SVG は /tmp の下に置かれる", async ($, on) => {
   // Arrange
   const { written } = engine(on, {});
 
@@ -72,7 +72,7 @@ test("when TMPDIR is unset, as on Linux, the SVG goes under /tmp", async ($, on)
   await ui.unmount();
 });
 
-test("when only TEMP is set, as on Windows, the link is a file URL with its drive", async ($, on) => {
+test("Windows のように TEMP だけが設定されていると、リンクはドライブ付きの file URL になる", async ($, on) => {
   // Arrange
   engine(on, { TEMP: "C:\\Users\\me\\Temp" });
 
@@ -85,7 +85,7 @@ test("when only TEMP is set, as on Windows, the link is a file URL with its driv
   await ui.unmount();
 });
 
-test("when no mermaid block in a reply is readable, the reply is left to the engine as written", async ($, on) => {
+test("返信の mermaid ブロックがどれも pele で描けないと、返信はそのままエンジンに任される", async ($, on) => {
   // Arrange
   const { written } = engine(on, { TMPDIR: "/tmp" });
 
@@ -98,7 +98,7 @@ test("when no mermaid block in a reply is readable, the reply is left to the eng
   await ui.unmount();
 });
 
-test("on the terminal, each mermaid block pele can draw is drawn as a PNG over its source with a link to its SVG below", async ($, on) => {
+test("ターミナルでは、pele が描ける mermaid ブロックがそれぞれソースの代わりに PNG で描画され、その下に SVG へのリンクが付く", async ($, on) => {
   // Arrange
   const { written, converted } = engine(on, { TMPDIR: "/tmp" });
 

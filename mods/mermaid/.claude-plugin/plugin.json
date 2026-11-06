@@ -1,5 +1,5 @@
 {
   "name": "mermaid",
   "version": "2026.11.1",
-  "description": "Links an SVG of each mermaid block in Claude's replies, and shows it as an image in the terminal"
+  "description": "Claude の返信の mermaid ブロックごとに SVG へのリンクを付け、ターミナルでは画像で表示する"
 }
