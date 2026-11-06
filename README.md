@@ -13,7 +13,7 @@ claude plugin install mermaid@h3y6e
 claude plugin install dubbed@h3y6e
 ```
 
-## 開発
+## Development
 
 ```sh
 mise install
