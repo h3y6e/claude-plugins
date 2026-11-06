@@ -1,26 +1,26 @@
 {
   "name": "dubbed",
   "version": "2026.11.1",
-  "description": "Shows Claude's replies dubbed into Japanese or English, with the original folded below",
+  "description": "Claude の返信を日本語か英語に訳して表示し、原文はその下に折りたたむ",
   "types": "./types/index.d.ts",
   "userConfig": {
     "lang": {
       "type": "string",
-      "title": "Language",
-      "description": "Language replies are dubbed into",
+      "title": "言語",
+      "description": "返信の翻訳先の言語",
       "options": ["ja", "en"],
       "default": "ja"
     },
     "endpoint": {
       "type": "string",
-      "title": "Completions endpoint",
-      "description": "OpenAI-compatible /v1/completions URL serving PLaMo 3 Translate",
+      "title": "Completions エンドポイント",
+      "description": "PLaMo 3 Translate を提供する OpenAI 互換の /v1/completions の URL",
       "default": "http://127.0.0.1:9931/v1/completions"
     },
     "model": {
       "type": "string",
-      "title": "Model",
-      "description": "Model name the endpoint serves PLaMo 3 Translate under",
+      "title": "モデル",
+      "description": "エンドポイント上の PLaMo 3 Translate のモデル名",
       "default": "plamo-3-translate-2b"
     }
   }

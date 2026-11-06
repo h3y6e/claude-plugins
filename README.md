@@ -1,11 +1,11 @@
 # claude-plugins
 
-My [Claude Code plugins](https://code.claude.com/docs/en/plugins/overview).
+[Claude Code プラグイン](https://code.claude.com/docs/ja/plugins/overview)
 
-| Plugin                  | What it does                                                         |
-| ----------------------- | -------------------------------------------------------------------- |
-| [mermaid](mods/mermaid) | Links mermaid blocks in replies to an SVG by pele                    |
-| [dubbed](mods/dubbed)   | Shows replies dubbed into Japanese or English, original folded below |
+| プラグイン              | 内容                                                           |
+| ----------------------- | -------------------------------------------------------------- |
+| [mermaid](mods/mermaid) | 返信の mermaid ブロックに pele で描いた SVG へのリンクを付ける |
+| [dubbed](mods/dubbed)   | 返信を日本語か英語に訳して表示し、原文はその下に折りたたむ     |
 
 ```sh
 claude plugin marketplace add h3y6e/claude-plugins
@@ -13,7 +13,7 @@ claude plugin install mermaid@h3y6e
 claude plugin install dubbed@h3y6e
 ```
 
-## Develop
+## 開発
 
 ```sh
 mise install

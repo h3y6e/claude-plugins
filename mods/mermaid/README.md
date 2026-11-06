@@ -1,14 +1,14 @@
 # mermaid
 
-Links an SVG, drawn by [pele](https://pele.run), below each mermaid block in Claude's replies.
+Claude の返信の mermaid ブロックごとに、[pele](https://pele.run) で描いた SVG へのリンクを下に付けます。
 
-![mermaid example](assets/example.png)
+![mermaid の例](assets/example.png)
 
-## Install
+## インストール
 
 ```sh
 claude plugin marketplace add h3y6e/claude-plugins
 claude plugin install mermaid@h3y6e
 ```
 
-In the terminal the block becomes an image, which needs [ImageMagick](https://imagemagick.org). The icon needs a [Nerd Font](https://www.nerdfonts.com).
+ターミナルではブロックを画像で表示するため、[ImageMagick](https://imagemagick.org) が必要です。アイコンの表示には [Nerd Font](https://www.nerdfonts.com) が必要です。

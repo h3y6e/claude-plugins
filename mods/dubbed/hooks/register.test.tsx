@@ -50,7 +50,7 @@ const engine = (
   return { prompts, toasts };
 };
 
-test("when an English reply is drawn, the engine draws its Japanese translation with the original folded to a dim italic first line below", async ($, on) => {
+test("英語の返信が描画されると、エンジンは日本語訳を描画し、その下に原文を1行目だけの薄い斜体に折りたたんで表示する", async ($, on) => {
   // Arrange
   engine(on, {
     "I fixed the tests.": "テストを修正しました。",
@@ -74,7 +74,7 @@ test("when an English reply is drawn, the engine draws its Japanese translation 
 });
 
 test(
-  "when an endpoint and a model are configured, translations are requested from them",
+  "エンドポイントとモデルが設定されていると、翻訳のリクエストはそこへ送られる",
   { options: { endpoint: "http://127.0.0.1:9931/v1/completions", model: "plamo-3-translate-2b" } },
   async ($, on) => {
     // Arrange
@@ -106,7 +106,7 @@ test(
   },
 );
 
-test("when the folded original is pressed, it unfolds dimmed below the translation", async ($, on) => {
+test("折りたたまれた原文を押すと、訳の下に薄い色で展開される", async ($, on) => {
   // Arrange
   engine(on, { "I fixed the tests.": "テストを修正しました。" });
   const ui = await $.ui.mount(reply("I fixed the tests."));
@@ -123,7 +123,7 @@ test("when the folded original is pressed, it unfolds dimmed below the translati
 });
 
 test(
-  "when the target language is English, a Japanese reply is drawn in English with the original folded under an English label",
+  "翻訳先が英語のとき、日本語の返信は英語で描画され、原文は英語のラベルの下に折りたたまれる",
   { options: { lang: "en" } },
   async ($, on) => {
     // Arrange
@@ -141,7 +141,7 @@ test(
 );
 
 test(
-  "when the target language is English, an English reply is drawn as written without a translation",
+  "翻訳先が英語のとき、英語の返信は訳さずそのまま描画される",
   { options: { lang: "en" } },
   async ($, on) => {
     // Arrange
@@ -157,7 +157,7 @@ test(
   },
 );
 
-test("when a reply holds a code block, only the prose around it is translated", async ($, on) => {
+test("返信にコードブロックがあると、その前後の文章だけが訳される", async ($, on) => {
   // Arrange
   const { prompts } = engine(on, {
     "Run this:": "これを実行してください:",
@@ -177,7 +177,7 @@ test("when a reply holds a code block, only the prose around it is translated", 
   await ui.unmount();
 });
 
-test("when a reply follows a prompt and an earlier translation, the prompt goes as context and the earlier pair as history", async ($, on) => {
+test("プロンプトと前の訳に続く返信では、プロンプトが文脈として、前の原文と訳の組が履歴として送られる", async ($, on) => {
   // Arrange
   const { prompts } = engine(on, { "First.": "一つ目。", "Second.": "二つ目。" });
   await $.prompt.submit({ text: "テストを直して", wait: false, origin: { kind: "composer" } });
@@ -199,7 +199,7 @@ test("when a reply follows a prompt and an earlier translation, the prompt goes 
   await second.unmount();
 });
 
-test("when a reply is drawn off screen, it is not sent for translation", async ($, on) => {
+test("画面外で描画された返信は、翻訳に送られない", async ($, on) => {
   // Arrange
   const { prompts } = engine(on, { "I fixed the tests.": "テストを修正しました。" });
 
@@ -214,7 +214,7 @@ test("when a reply is drawn off screen, it is not sent for translation", async (
   await ui.unmount();
 });
 
-test("when more paragraphs wait than the cap, the newest go first and the oldest are dropped", async ($, on) => {
+test("翻訳待ちの段落が上限を超えると、新しい段落から訳され、古い段落は捨てられる", async ($, on) => {
   // Arrange
   const sources = Array.from({ length: 10 }, (_, i) => `Paragraph ${i + 1}.`);
   let release!: () => void;
@@ -230,7 +230,7 @@ test("when more paragraphs wait than the cap, the newest go first and the oldest
   expect(prompts.map(source)).toEqual(["Paragraph 1.", ...sources.slice(2).toReversed()]);
 });
 
-test("when a reply holds only Japanese and paragraphs without Latin letters, it is drawn as written without a translation", async ($, on) => {
+test("返信が日本語の段落とラテン文字を含まない段落だけなら、訳さずそのまま描画される", async ($, on) => {
   // Arrange
   const { prompts } = engine(on, {});
 
@@ -245,7 +245,7 @@ test("when a reply holds only Japanese and paragraphs without Latin letters, it 
   await ui.unmount();
 });
 
-test("when the translation server fails, the reply stays as written with one toast however often it is drawn, and a draw after it recovers translates", async ($, on) => {
+test("翻訳サーバーへのリクエストが失敗すると、何度描画されても返信はそのままでトーストは1回だけ出て、復旧後の描画では訳される", async ($, on) => {
   // Arrange
   const server = { status: 503 };
   const { toasts } = engine(on, { "I fixed the tests.": "テストを修正しました。" }, server);
@@ -267,7 +267,7 @@ test("when the translation server fails, the reply stays as written with one toa
   await ui.unmount();
 });
 
-test("while a reply streams, each finished English paragraph is translated before the response ends", async ($, on) => {
+test("返信のストリーミング中、書き終わった英語の段落は応答の終了を待たずに訳される", async ($, on) => {
   // Arrange
   const { prompts } = engine(on, { "First paragraph.": "最初の段落。" });
   on("turn.step", async function* () {

@@ -6,7 +6,7 @@ export default defineConfig({
   clean: false,
   platform: "neutral",
   fixedExtension: true,
-  // Claude Code reads $, on and next by name and refuses a module that renames them
+  // Claude Code は $・on・next を名前で参照するので、これらを改名したモジュールは読み込まれない
   minify: { mangle: false },
   copy: { from: "node_modules/pele/LICENSE", rename: "LICENSE.pele" },
 });
