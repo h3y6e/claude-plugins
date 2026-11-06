@@ -43,7 +43,7 @@ const engine = (
     };
   });
   on("prompt.submit", (_, e) => ({ text: e.text }));
-  on("ui.render", { component: "AssistantMessage" }, ($, e) => {
+  on("ui.render", { component: ["AssistantMessage", "CommandOutput"] }, ($, e) => {
     const { Text } = $.ui.resolve(e);
     return <Text>{e.props.text}</Text>;
   });
@@ -105,6 +105,87 @@ test(
     await ui.unmount();
   },
 );
+
+test("/recap の英語の出力が描画されると、日本語訳が描画され、その下に原文が折りたたまれる", async ($, on) => {
+  // Arrange
+  engine(on, { "You fixed the tests.": "テストを修正しました。" });
+
+  // Act
+  const ui = await $.ui.mount({
+    ...reply(""),
+    component: "CommandOutput",
+    props: { command: "recap", args: "", text: "You fixed the tests.", isErrored: false },
+  });
+
+  // Assert
+  expect((await ui.find({ type: "Text", text: /テスト/ }))?.text).toBe("テストを修正しました。");
+  expect((await ui.find({ type: "Button" }))?.props.label).toBe("▸ 原文");
+  await ui.unmount();
+});
+
+test("recap 以外のコマンドの英語の出力は、訳さずそのまま描画される", async ($, on) => {
+  // Arrange
+  const { prompts } = engine(on, {});
+
+  // Act
+  const ui = await $.ui.mount({
+    ...reply(""),
+    component: "CommandOutput",
+    props: { command: "cost", args: "", text: "Total cost: $0.01", isErrored: false },
+  });
+
+  // Assert
+  expect(prompts).toEqual([]);
+  expect(await ui.find({ type: "Button" })).toBeUndefined();
+  await ui.unmount();
+});
+
+test("離席中の英語の recap が追加されると、日本語訳に置き換えて保存される", async ($, on) => {
+  // Arrange
+  engine(on, { "You fixed the tests.": "テストを修正しました。" });
+
+  // Act
+  const stored = await $.session.append({
+    message: {
+      type: "system",
+      name: "away_summary",
+      content: [{ type: "text", text: "You fixed the tests." }],
+    },
+    door: "notice",
+    origin: { kind: "engine" },
+    uuid: "r1",
+  });
+
+  // Assert
+  expect(stored.message?.content).toEqual([{ type: "text", text: "テストを修正しました。" }]);
+});
+
+test("離席中の recap の段落の一部が訳せないと、recap は原文のまま保存される", async ($, on) => {
+  // Arrange
+  const server = {
+    get status() {
+      return prompts.length > 1 ? 503 : 200;
+    },
+  };
+  const { prompts } = engine(on, { "You fixed the tests.": "テストを修正しました。" }, server);
+
+  // Act
+  const stored = await $.session.append({
+    message: {
+      type: "system",
+      name: "away_summary",
+      content: [{ type: "text", text: "You fixed the tests.\n\nAll pass." }],
+    },
+    door: "notice",
+    origin: { kind: "engine" },
+    uuid: "r1",
+  });
+
+  // Assert
+  expect(stored.message?.content).toEqual([
+    { type: "text", text: "You fixed the tests.\n\nAll pass." },
+  ]);
+});
 
 test("折りたたまれた原文を押すと、訳の下に薄い色で展開される", async ($, on) => {
   // Arrange

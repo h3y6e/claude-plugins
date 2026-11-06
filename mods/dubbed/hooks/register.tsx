@@ -84,6 +84,16 @@ const pending: string[] = [];
 let inFlight: string | undefined;
 let isFailing = false;
 
+const fail = ($: EngineInterface, error: unknown) => {
+  if (!isFailing) $.ui.toast(`dubbed: ${String(error)}`);
+  isFailing = true;
+};
+
+const dubbed = (text: string) =>
+  paragraphs(text)
+    .map((p) => translations.get(p) ?? p)
+    .join("");
+
 const request = ($: EngineInterface, sources: string[]) => {
   for (const p of sources.toReversed()) {
     if (translations.has(p) || p === inFlight) continue;
@@ -102,9 +112,22 @@ const drain = async ($: EngineInterface) => {
       isFailing = false;
       $.ui.invalidate("ui.render");
     } catch (error) {
-      if (!isFailing) $.ui.toast(`dubbed: ${String(error)}`);
-      isFailing = true;
+      fail($, error);
     }
+  }
+};
+
+const translateAll = async ($: EngineInterface, text: string) => {
+  try {
+    for (const p of sourcesOf(text)) {
+      if (translations.has(p)) continue;
+      translations.set(p, await translate($, p));
+      isFailing = false;
+    }
+    return dubbed(text);
+  } catch (error) {
+    fail($, error);
+    return text;
   }
 };
 
@@ -129,20 +152,34 @@ export const register: Register = (on, options) => {
     }
   });
 
-  on("ui.render", { component: "AssistantMessage" }, async ($, e, next) => {
+  on(
+    "session.append",
+    { door: "notice", message: { name: "away_summary" } },
+    async ($, e, next) => {
+      const content = await Promise.all(
+        e.message.content.map(async (block) =>
+          typeof block.text === "string"
+            ? { ...block, text: await translateAll($, block.text) }
+            : block,
+        ),
+      );
+      return next({ ...e, message: { ...e.message, content } });
+    },
+  );
+
+  on("ui.render", { component: ["AssistantMessage", "CommandOutput"] }, async ($, e, next) => {
+    if (e.component === "CommandOutput" && e.props.command !== "recap") return next(e);
     const { text } = e.props;
     const sources = sourcesOf(text);
     if (e.props.onScreen !== null) request($, sources);
     if (sources.length === 0 || !sources.every((p) => translations.has(p))) return next(e);
-    const translated = paragraphs(text)
-      .map((p) => translations.get(p) ?? p)
-      .join("");
+    const translated = dubbed(text);
     const expanded = memberOf(isExpanded, e);
     const isOpen = await read($, expanded);
     const { Box, Button, Markdown, Text } = $.ui.resolve(e);
     return (
       <Box flexDirection="column">
-        {await next({ ...e, props: { ...e.props, text: translated } })}
+        {await next({ ...e, props: { ...e.props, text: translated } } as typeof e)}
         <Box flexDirection="column" paddingLeft={2}>
           <Box gap={1}>
             <Button
