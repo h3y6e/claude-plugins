@@ -1,6 +1,6 @@
 # dubbed
 
-Claude の返信を日本語か英語に訳して表示し、原文はその下に折りたたみます。返信そのものは書き換えません。
+Claude の返信や recap を日本語か英語に訳して表示し、原文はその下に折りたたみます。
 
 ![dubbed の例](assets/example.png)
 
@@ -19,6 +19,6 @@ claude plugin install dubbed@h3y6e
 
 | キー       | 既定値                                 | 内容                                                  |
 | ---------- | -------------------------------------- | ----------------------------------------------------- |
-| `lang`     | `ja`                                   | 返信の翻訳先の言語（`ja` か `en`）                    |
+| `lang`     | `ja`                                   | 翻訳先の言語（`ja` か `en`）                          |
 | `endpoint` | `http://127.0.0.1:9931/v1/completions` | PLaMo 3 Translate を提供する `/v1/completions` の URL |
 | `model`    | `plamo-3-translate-2b`                 | エンドポイント上のモデル名                            |

@@ -1,13 +1,13 @@
 {
   "name": "dubbed",
   "version": "2026.11.1",
-  "description": "Claude の返信を日本語か英語に訳して表示し、原文はその下に折りたたむ",
+  "description": "Claude の返信や recap を日本語か英語に訳して表示し、原文はその下に折りたたむ",
   "types": "./types/index.d.ts",
   "userConfig": {
     "lang": {
       "type": "string",
       "title": "言語",
-      "description": "返信の翻訳先の言語",
+      "description": "翻訳先の言語",
       "options": ["ja", "en"],
       "default": "ja"
     },
