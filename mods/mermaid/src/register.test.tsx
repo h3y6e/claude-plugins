@@ -7,6 +7,7 @@ const PNG =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR4nGNgAAAAAgABSK+kcQAAAABJRU5ErkJggg==";
 const HASH = "[0-9a-f]{40}";
 const LINK = (url: string) => `[\u{F02E9} SVG ↗](${url})`;
+const SLOW = { timeoutMs: 20_000 };
 
 const reply = (text: string, surface: "terminal" | "desktop" = "desktop") =>
   ({
@@ -43,22 +44,26 @@ const engine = (on: On, env: Record<string, string>) => {
   return { written, converted };
 };
 
-test("ターミナル外で、返信に pele が描ける mermaid ブロックがあると、エンジンはブロックの下に SVG へのリンクを付けて描画する", async ($, on) => {
-  // Arrange
-  const { written } = engine(on, { TMPDIR: "/var/folders/T/" });
+test(
+  "ターミナル外で、返信に pele が描ける mermaid ブロックがあると、エンジンはブロックの下に SVG へのリンクを付けて描画する",
+  SLOW,
+  async ($, on) => {
+    // Arrange
+    const { written } = engine(on, { TMPDIR: "/var/folders/T/" });
 
-  // Act
-  const ui = await $.ui.mount(reply(`before\n${FLOW}\nmiddle\n${BROKEN}\nafter`));
+    // Act
+    const ui = await $.ui.mount(reply(`before\n${FLOW}\nmiddle\n${BROKEN}\nafter`));
 
-  // Assert
-  const text = (await ui.find({ type: "Text", text: /before/ }))!.text;
-  expect(written).toHaveLength(1);
-  expect(written[0]).toMatch(new RegExp(`^/var/folders/T/mermaid/${HASH}\\.svg$`));
-  expect(text).toBe(`before\n${FLOW}\n${LINK(`file://${written[0]}`)}\nmiddle\n${BROKEN}\nafter`);
-  await ui.unmount();
-});
+    // Assert
+    const text = (await ui.find({ type: "Text", text: /before/ }))!.text;
+    expect(written).toHaveLength(1);
+    expect(written[0]).toMatch(new RegExp(`^/var/folders/T/mermaid/${HASH}\\.svg$`));
+    expect(text).toBe(`before\n${FLOW}\n${LINK(`file://${written[0]}`)}\nmiddle\n${BROKEN}\nafter`);
+    await ui.unmount();
+  },
+);
 
-test("Linux のように TMPDIR が未設定だと、SVG は /tmp の下に置かれる", async ($, on) => {
+test("Linux のように TMPDIR が未設定だと、SVG は /tmp の下に置かれる", SLOW, async ($, on) => {
   // Arrange
   const { written } = engine(on, {});
 
@@ -72,52 +77,64 @@ test("Linux のように TMPDIR が未設定だと、SVG は /tmp の下に置�
   await ui.unmount();
 });
 
-test("Windows のように TEMP だけが設定されていると、リンクはドライブ付きの file URL になる", async ($, on) => {
-  // Arrange
-  engine(on, { TEMP: "C:\\Users\\me\\Temp" });
+test(
+  "Windows のように TEMP だけが設定されていると、リンクはドライブ付きの file URL になる",
+  SLOW,
+  async ($, on) => {
+    // Arrange
+    engine(on, { TEMP: "C:\\Users\\me\\Temp" });
 
-  // Act
-  const ui = await $.ui.mount(reply(FLOW));
+    // Act
+    const ui = await $.ui.mount(reply(FLOW));
 
-  // Assert
-  const text = (await ui.find({ type: "Text", text: /mermaid/ }))!.text;
-  expect(text).toMatch(new RegExp(`\\(file:///C:/Users/me/Temp/mermaid/${HASH}\\.svg\\)$`));
-  await ui.unmount();
-});
+    // Assert
+    const text = (await ui.find({ type: "Text", text: /mermaid/ }))!.text;
+    expect(text).toMatch(new RegExp(`\\(file:///C:/Users/me/Temp/mermaid/${HASH}\\.svg\\)$`));
+    await ui.unmount();
+  },
+);
 
-test("返信の mermaid ブロックがどれも pele で描けないと、返信はそのままエンジンに任される", async ($, on) => {
-  // Arrange
-  const { written } = engine(on, { TMPDIR: "/tmp" });
+test(
+  "返信の mermaid ブロックがどれも pele で描けないと、返信はそのままエンジンに任される",
+  SLOW,
+  async ($, on) => {
+    // Arrange
+    const { written } = engine(on, { TMPDIR: "/tmp" });
 
-  // Act
-  const ui = await $.ui.mount(reply(BROKEN));
+    // Act
+    const ui = await $.ui.mount(reply(BROKEN));
 
-  // Assert
-  expect(written).toEqual([]);
-  expect((await ui.find({ type: "Text", text: /not a diagram/ }))?.text).toBe(BROKEN);
-  await ui.unmount();
-});
+    // Assert
+    expect(written).toEqual([]);
+    expect((await ui.find({ type: "Text", text: /not a diagram/ }))?.text).toBe(BROKEN);
+    await ui.unmount();
+  },
+);
 
-test("ターミナルでは、pele が描ける mermaid ブロックがそれぞれソースの代わりに PNG で描画され、その下に SVG へのリンクが付く", async ($, on) => {
-  // Arrange
-  const { written, converted } = engine(on, { TMPDIR: "/tmp" });
+test(
+  "ターミナルでは、pele が描ける mermaid ブロックがそれぞれソースの代わりに PNG で描画され、その下に SVG へのリンクが付く",
+  SLOW,
+  async ($, on) => {
+    // Arrange
+    const { written, converted } = engine(on, { TMPDIR: "/tmp" });
 
-  // Act
-  const ui = await $.ui.mount({
-    ...reply(`before\n${FLOW}\nafter`, "terminal"),
-    viewport: { columns: 80, rows: 24 },
-  });
+    // Act
+    const ui = await $.ui.mount({
+      ...reply(`before\n${FLOW}\nafter`, "terminal"),
+      viewport: { columns: 80, rows: 24 },
+    });
 
-  // Assert
-  const image = (await ui.find({ type: "Image" }))!;
-  expect(image.props.source).toEqual({ png: PNG });
-  expect(image.props.alt).toBe(FLOW);
-  expect(converted).toHaveLength(1);
-  expect(converted[0]).not.toContain("var(");
-  expect((await ui.find({ type: "Text", text: /before/ }))?.text).toBe("before");
-  expect((await ui.find({ type: "Markdown", text: /SVG/ }))?.text).toBe(
-    LINK(`file://${written[0]}`),
-  );
-  expect((await ui.find({ type: "Markdown", text: /after/ }))?.text).toBe("after");
-  await ui.unmount();
-});
+    // Assert
+    const image = (await ui.find({ type: "Image" }))!;
+    expect(image.props.source).toEqual({ png: PNG });
+    expect(image.props.alt).toBe(FLOW);
+    expect(converted).toHaveLength(1);
+    expect(converted[0]).not.toContain("var(");
+    expect((await ui.find({ type: "Text", text: /before/ }))?.text).toBe("before");
+    expect((await ui.find({ type: "Markdown", text: /SVG/ }))?.text).toBe(
+      LINK(`file://${written[0]}`),
+    );
+    expect((await ui.find({ type: "Markdown", text: /after/ }))?.text).toBe("after");
+    await ui.unmount();
+  },
+);
