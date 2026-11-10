@@ -84,6 +84,20 @@ await test("同じ SVG を 2 回変換すると、magick は 1 回だけ実行�
   assert.equal(runs.length, 1);
 });
 
+await test("変換が失敗した SVG をもう一度変換すると、magick が再実行され、成功すればその結果になる", async () => {
+  // Arrange
+  const failing = engine(1, "not installed");
+  const { $, runs } = engine();
+  await toPng(failing.$, "<svg>retry</svg>").catch(() => {});
+
+  // Act
+  const png = await toPng($, "<svg>retry</svg>");
+
+  // Assert
+  assert.equal(runs.length, 1);
+  assert.equal(png, PNG);
+});
+
 await test("magick が data URL を返すと、変換結果はカンマより後ろの base64 になる", async () => {
   // Arrange
   const { $ } = engine();

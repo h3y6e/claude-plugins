@@ -37,6 +37,14 @@ const convert = async ($: Engine, svg: string) => {
 const pngs = new Map<string, Promise<string>>();
 
 export const toPng = ($: Engine, svg: string) => {
-  if (!pngs.has(svg)) pngs.set(svg, convert($, svg));
+  if (!pngs.has(svg)) {
+    pngs.set(
+      svg,
+      convert($, svg).catch((error: unknown) => {
+        pngs.delete(svg);
+        throw error;
+      }),
+    );
+  }
   return pngs.get(svg)!;
 };
