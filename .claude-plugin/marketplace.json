@@ -3,6 +3,7 @@
   "owner": { "name": "h3y6e" },
   "plugins": [
     { "name": "mermaid", "source": "./mods/mermaid" },
-    { "name": "dubbed", "source": "./mods/dubbed" }
+    { "name": "dubbed", "source": "./mods/dubbed" },
+    { "name": "whiteboard", "source": "./mods/whiteboard" }
   ]
 }
