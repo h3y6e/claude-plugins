@@ -73,3 +73,18 @@ await test("外部 DTD、xml-stylesheet、CSS エスケープで外を参照す�
   // Assert
   for (const draw of draws) assert.throws(draw, /refers to something outside itself/);
 });
+
+await test("SVG 1.1 の標準の DOCTYPE は取り除いて描き、内部サブセットを持つ DOCTYPE はエラーになる", () => {
+  // Arrange
+  const body = '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="32"/>';
+  const standard = `<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">${body}`;
+  const subset = `<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [<!ENTITY a "b">]>${body}`;
+
+  // Act
+  const picture = drawImage(standard, "図");
+  const draw = () => drawImage(subset, "図");
+
+  // Assert
+  assert.deepEqual(picture, { svg: body, width: 80, height: 32, alt: "図" });
+  assert.throws(draw, /refers to something outside itself: <!DOCTYPE/);
+});

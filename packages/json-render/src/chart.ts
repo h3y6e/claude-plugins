@@ -117,10 +117,13 @@ const OUTSIDE = [
   /url\(\s*["']?\s*(?!#)[^)]*/i,
   /<!ENTITY[^>]*\b(?:SYSTEM|PUBLIC)\b[^>]*/i,
   /@import[^;]*/i,
-  /<!DOCTYPE[^>]*\b(?:SYSTEM|PUBLIC)\b[^>[]*/i,
+  /<!DOCTYPE[^>]*/i,
   /<\?xml-stylesheet[^>]*/i,
   /<style[^>]*>[^<]*\\[^<]*|style\s*=\s*(["'])[^"']*\\[^"']*\1/i,
 ];
+
+const SVG_DOCTYPE =
+  /<!DOCTYPE\s+svg\s+PUBLIC\s+(?:"-\/\/W3C\/\/DTD SVG 1\.1\/\/EN"\s+"http:\/\/www\.w3\.org\/Graphics\/SVG\/1\.1\/DTD\/svg11\.dtd"|"-\/\/W3C\/\/DTD SVG 20010904\/\/EN"\s+"http:\/\/www\.w3\.org\/TR\/2001\/REC-SVG-20010904\/DTD\/svg10\.dtd")\s*>/;
 
 const decode = (url: string) => {
   const [head, body] = [url.slice(0, url.indexOf(",")), url.slice(url.indexOf(",") + 1)];
@@ -131,7 +134,10 @@ const decode = (url: string) => {
 export const drawImage = (src: string, alt: string): Picture | { png: string; alt: string } => {
   const png = src.match(/^data:image\/png;base64,(.+)$/)?.[1];
   if (png) return { png, alt };
-  const source = src.startsWith("data:image/svg+xml") ? decode(src) : src;
+  const source = (src.startsWith("data:image/svg+xml") ? decode(src) : src).replace(
+    SVG_DOCTYPE,
+    "",
+  );
   const outside = OUTSIDE.map((re) => source.match(re)?.[0]).find(Boolean);
   if (outside) throw new Error(`the SVG refers to something outside itself: ${outside}`);
   const root = source.match(/<svg\b[^>]*>/)?.[0] ?? "";
