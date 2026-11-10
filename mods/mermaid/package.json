@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "@h3y6e/svg2png": "workspace:*",
-    "pele": "1.8.0",
+    "pele": "1.13.0",
     "tsdown": "0.23.1"
   }
 }
