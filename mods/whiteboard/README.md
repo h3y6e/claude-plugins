@@ -2,6 +2,8 @@
 
 Claude が書いた [json-render](https://json-render.dev) の spec を、チャットの横のペインに描きます。ペインで選んだり入力したりした内容は、次のプロンプトとして Claude に返ります。
 
+![whiteboard の例](assets/example.png)
+
 部品は Claude Code の UI 要素に合わせた独自のカタログで、名前は [shadcn 版](https://json-render.dev/docs/api/shadcn) に揃えています（Stack、Card、Collapsible、Tabs、Separator、Heading、Text、Markdown、Code、Link、Badge、Alert、Table、Chart、Progress、Spinner、Image、Button、Input、Select、Checkbox）。描画は [packages/json-render](../../packages/json-render) が受け持ちます。
 
 ## インストール
