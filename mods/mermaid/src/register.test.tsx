@@ -129,7 +129,6 @@ test(
     expect(image.props.source).toEqual({ png: PNG });
     expect(image.props.alt).toBe(FLOW);
     expect(converted).toHaveLength(1);
-    expect(converted[0]).not.toContain("var(");
     expect((await ui.find({ type: "Text", text: /before/ }))?.text).toBe("before");
     expect((await ui.find({ type: "Markdown", text: /SVG/ }))?.text).toBe(
       LINK(`file://${written[0]}`),

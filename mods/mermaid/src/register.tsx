@@ -1,3 +1,4 @@
+import { toPng } from "@h3y6e/svg2png";
 import type { EngineInterface, Register } from "claude-code";
 import { render } from "pele";
 
@@ -24,31 +25,7 @@ const draw = async ($: EngineInterface, block: string) => {
   return { block, svg, width: width!, height: height!, link: `[\u{F02E9} SVG ↗](${url.href})` };
 };
 
-const flatten = (svg: string) => {
-  const vars = Object.fromEntries(
-    [...svg.matchAll(/(--[\w-]+):([^;"]+)/g)].map(([, k, v]) => [k, v]),
-  );
-  for (let prev = ""; prev !== svg;) {
-    prev = svg;
-    svg = svg.replace(
-      /var\((--[\w-]+)(?:,([^()]*))?\)/g,
-      (_, k: string, fallback?: string) => vars[k] ?? fallback ?? "",
-    );
-  }
-  return svg;
-};
-
-const toPng = async ($: EngineInterface, svg: string) => {
-  const { exitCode, stdout, stderr } = await $.process.run(
-    ["magick", "-density", "192", "-background", "none", "svg:-", "INLINE:PNG:-"],
-    { stdin: flatten(svg) },
-  );
-  if (exitCode !== 0) throw new Error(`magick: ${stderr}`);
-  return stdout.slice(stdout.indexOf(",") + 1);
-};
-
 const diagrams = new Map<string, ReturnType<typeof draw>>();
-const pngs = new Map<string, Promise<string>>();
 
 export const register: Register = (on) => {
   on("ui.render", { component: "AssistantMessage" }, async ($, e, next) => {
@@ -80,7 +57,7 @@ export const register: Register = (on) => {
               return (
                 <Box flexDirection="column">
                   <Image
-                    source={{ png: await once(pngs, p.svg, () => toPng($, p.svg)) }}
+                    source={{ png: await toPng($, p.svg) }}
                     columns={columns}
                     rows={rows}
                     alt={p.block}
