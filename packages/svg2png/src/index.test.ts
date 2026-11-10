@@ -49,6 +49,18 @@ await test("入れ子の var() とフォールバックを含む SVG を変換�
   );
 });
 
+await test("テキストに互いを参照する変数定義のような文字列を含む SVG を変換すると、テキストはそのまま magick に渡る", async () => {
+  // Arrange
+  const { $, runs } = engine();
+  const svg = "<svg><text>--a:var(--b);--b:var(--a)</text></svg>";
+
+  // Act
+  await toPng($, svg);
+
+  // Assert
+  assert.equal(runs[0]!.stdin, svg);
+});
+
 await test("magick が 0 以外で終了すると、変換はその stderr を含むエラーで失敗する", async () => {
   // Arrange
   const { $ } = engine(1, "no decode delegate");
