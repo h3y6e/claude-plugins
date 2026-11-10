@@ -1755,25 +1755,25 @@ url = "https://conda.anaconda.org/conda-forge/osx-64/zstd-1.5.7-hbc1a06c_7.conda
 checksum = "sha256:5277886d9704a624dc9b79ac985861e1e431bdb39a57c082507ab577a138ec6c"
 
 [[tools.aube]]
-version = "2.8.1"
+version = "2.9.0"
 backend = "packslip:github.com/aubepkg/aube"
-specifiers = ["2.8.1"]
+specifiers = ["v2.9.0"]
 
 [tools.aube."platforms.linux-arm64"]
-checksum = "sha256:12eda315743aea0a1a66eedaf4ebd2f2de80d985c71cf21d44475cf6c9f8728c"
-url = "https://github.com/aubepkg/aube/releases/download/v2.8.1/aube-v2.8.1-aarch64-unknown-linux-gnu.tar.gz"
+checksum = "sha256:6439ed819ef506a076f002fb520686c84518dcea319e61be0816f1120a1d1862"
+url = "https://github.com/aubepkg/aube/releases/download/v2.9.0/aube-v2.9.0-aarch64-unknown-linux-gnu.tar.gz"
 signer = "sigstore-oidc:https://github.com/aubepkg/aube/.github/workflows/release.yml"
 repository_ids = { repository = "1214542327" }
 
 [tools.aube."platforms.linux-x64"]
-checksum = "sha256:83ca5541a10a21b81189fc391d3853774826a439db28d3b0136648c37fbdbe79"
-url = "https://github.com/aubepkg/aube/releases/download/v2.8.1/aube-v2.8.1-x86_64-unknown-linux-gnu.tar.gz"
+checksum = "sha256:b0ecb21475ec057c523f45f1b1cc0861f614065c1cf9b51cc93548989c3a2f16"
+url = "https://github.com/aubepkg/aube/releases/download/v2.9.0/aube-v2.9.0-x86_64-unknown-linux-gnu.tar.gz"
 signer = "sigstore-oidc:https://github.com/aubepkg/aube/.github/workflows/release.yml"
 repository_ids = { repository = "1214542327" }
 
 [tools.aube."platforms.macos-arm64"]
-checksum = "sha256:f5eca610159c38c5ab6d5766348305b2d391de436349c7abd49a967b289a895f"
-url = "https://github.com/aubepkg/aube/releases/download/v2.8.1/aube-v2.8.1-aarch64-apple-darwin.tar.gz"
+checksum = "sha256:8e4d70433ae1e7ba7f43581fbfd7756210881ce1f67e1440d166bd12297161e4"
+url = "https://github.com/aubepkg/aube/releases/download/v2.9.0/aube-v2.9.0-aarch64-apple-darwin.tar.gz"
 signer = "sigstore-oidc:https://github.com/aubepkg/aube/.github/workflows/release.yml"
 repository_ids = { repository = "1214542327" }
 
