@@ -13,7 +13,7 @@ import { toPng } from "@h3y6e/svg2png";
 import { defineCatalog, resolveAction, resolveActionParam } from "@json-render/core";
 import type { Spec as CoreSpec } from "@json-render/core";
 import { atom, memberOf, read, update } from "claude-code";
-import type { Elements, EngineInterface, Register, RenderSurface, Timer } from "claude-code";
+import type { Elements, EngineInterface, Register, RenderSurface } from "claude-code";
 
 import type { ActionBinding, Call, Json, Spec, View } from "../types";
 
@@ -24,6 +24,7 @@ const call = atom({ plugin: "whiteboard", key: "call" } as const, null);
 
 const catalog = defineCatalog(schema, { components: standardComponentDefinitions });
 
+type Timer = { cancel(): void };
 let ticker: Timer | undefined;
 
 const send = async ($: EngineInterface, action: string, params: View["state"]) => {
