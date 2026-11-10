@@ -117,7 +117,7 @@ export const register: Register = (on) => {
         properties: { title: { type: "string" }, spec: { type: "object" } },
         required: ["title", "spec"],
       },
-      isDeferred: false,
+      isDeferred: true,
     });
     return next(e);
   });
