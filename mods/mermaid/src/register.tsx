@@ -5,7 +5,15 @@ import { render } from "pele";
 const FENCE = /^(```mermaid[ \t]*\n[\s\S]*?\n```)[ \t]*$/m;
 
 const once = <T,>(cache: Map<string, Promise<T>>, key: string, f: () => Promise<T>) => {
-  if (!cache.has(key)) cache.set(key, f());
+  if (!cache.has(key)) {
+    cache.set(
+      key,
+      f().catch((error: unknown) => {
+        cache.delete(key);
+        throw error;
+      }),
+    );
+  }
   return cache.get(key)!;
 };
 
