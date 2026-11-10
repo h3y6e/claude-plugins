@@ -1,0 +1,6 @@
+{
+  "name": "whiteboard",
+  "version": "2026.11.0",
+  "description": "Claude が書いた json-render の spec をチャットの横のペインに描き、操作の結果を Claude に返す",
+  "types": "./types/index.d.ts"
+}
