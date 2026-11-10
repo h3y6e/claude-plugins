@@ -39,6 +39,9 @@ export const applyAction = (
 export const watchers = (spec: Spec, before: StateModel, after: StateModel): ActionBinding[] =>
   Object.values(spec.elements).flatMap((el) =>
     Object.entries((el.watch ?? {}) as Record<string, ActionBinding | ActionBinding[]>)
-      .filter(([path]) => getByPath(before, path) !== getByPath(after, path))
+      .filter(
+        ([path]) =>
+          JSON.stringify(getByPath(before, path)) !== JSON.stringify(getByPath(after, path)),
+      )
       .flatMap(([, bindings]) => [bindings].flat()),
   );

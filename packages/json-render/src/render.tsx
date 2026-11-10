@@ -13,7 +13,12 @@ import type { ChartProps, Picture } from "./chart";
 import type { ButtonProps, Ui } from "./ui";
 
 type Element = Spec["elements"][string];
-export type Scope = { repeatItem?: unknown; repeatIndex?: number; repeatBasePath?: string };
+export type Scope = {
+  repeatItem?: unknown;
+  repeatIndex?: number;
+  repeatBasePath?: string;
+  repeatKey?: string;
+};
 
 export type Act = {
   submits: Record<string, number>;
@@ -56,15 +61,19 @@ export const render = (o: RenderOptions): JSX.Element => (
 
 const repeated = (
   o: RenderOptions,
-  statePath: Parameters<typeof resolveRepeatStatePath>[0],
+  repeat: NonNullable<Element["repeat"]>,
   ids: string[],
   scope: Scope,
 ) => {
-  const path = resolveRepeatStatePath(statePath, scope.repeatBasePath);
+  const path = resolveRepeatStatePath(repeat.statePath, scope.repeatBasePath);
   const items = path === undefined ? undefined : getByPath(o.state, path);
   return (Array.isArray(items) ? items : []).flatMap((repeatItem, repeatIndex) => {
     const repeatBasePath = resolveRepeatItemStatePath(path!, repeatIndex);
-    return ids.map((child) => drawElement(o, child, { repeatItem, repeatIndex, repeatBasePath }));
+    const itemKey = repeat.key ? (repeatItem as Record<string, unknown>)[repeat.key] : repeatIndex;
+    const repeatKey = `${scope.repeatKey ?? ""}/${String(itemKey)}`;
+    return ids.map((child) =>
+      drawElement(o, child, { repeatItem, repeatIndex, repeatBasePath, repeatKey }),
+    );
   });
 };
 
@@ -74,13 +83,14 @@ const drawElement = (o: RenderOptions, id: string, scope: Scope): JSX.Children =
   const ctx = { stateModel: o.state, ...scope };
   if (el.visible !== undefined && !evaluateVisibility(el.visible, ctx)) return null;
 
-  const key = scope.repeatBasePath ? `${id}@${scope.repeatBasePath}` : id;
+  const key = scope.repeatKey ? `${id}@${scope.repeatKey}` : id;
   const ids = el.children ?? [];
-  const children = el.repeat
-    ? repeated(o, el.repeat.statePath, ids, scope)
-    : isColumn(el)
-      ? labelled(o, ids, scope)
-      : ids.map((child) => drawElement(o, child, scope));
+  const children = () =>
+    el.repeat
+      ? repeated(o, el.repeat, ids, scope)
+      : isColumn(el)
+        ? labelled(o, ids, scope)
+        : ids.map((child) => drawElement(o, child, scope));
   const on = el.on ?? {};
   const fire = async (event: string) => {
     if (on[event]) await o.act?.fire(on[event], scope);
@@ -175,7 +185,7 @@ const drawComponent = (
     key: string;
     p: Record<string, any>;
     bind: Record<string, string>;
-    children: JSX.Children[];
+    children: () => JSX.Children[];
     fire: (event: string) => Promise<void>;
   },
 ): JSX.Children => {
@@ -199,7 +209,7 @@ const drawComponent = (
             ] as "stretch"
           }
         >
-          {children}
+          {children()}
         </Box>
       );
     case "Card":
@@ -207,7 +217,7 @@ const drawComponent = (
         <Box flexDirection="column" borderStyle="round" borderColor="gray" paddingX={1}>
           {p.title && <Text bold>{p.title}</Text>}
           {p.description && <Text dimColor>{p.description}</Text>}
-          {children}
+          {children()}
         </Box>
       );
     case "Collapsible": {
@@ -222,7 +232,7 @@ const drawComponent = (
           />
           {isOpen && (
             <Box flexDirection="column" paddingLeft={2}>
-              {children}
+              {children()}
             </Box>
           )}
         </Box>
@@ -251,7 +261,7 @@ const drawComponent = (
                 .join("")}
             </Text>
           )}
-          {children}
+          {children()}
         </Box>
       );
     }
@@ -372,7 +382,8 @@ const drawComponent = (
     case "Image":
       return picture(o, drawImage(p.src, p.alt));
     case "Progress": {
-      const done = Math.max(0, Math.min(1, p.value / (p.max ?? 100)));
+      const max = p.max ?? 100;
+      const done = p.value >= max ? 1 : Math.max(0, p.value / max);
       return (
         <Box gap={1}>
           {p.label && (

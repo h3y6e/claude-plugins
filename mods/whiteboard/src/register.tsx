@@ -28,10 +28,10 @@ let ticker: Timer | undefined;
 
 const send = async ($: EngineInterface, action: string, params: View["state"]) => {
   const cur = (await read($, view))!;
-  await update($, view, (c) => c && { ...c, pending: null, isSent: true });
   await $.prompt.submit({
     text: `[whiteboard] "${cur.title}" ${action}\n${JSON.stringify({ params, state: cur.state }, null, 2)}`,
   });
+  await update($, view, (c) => c && { ...c, pending: null, isSent: true });
 };
 
 const commit = async (

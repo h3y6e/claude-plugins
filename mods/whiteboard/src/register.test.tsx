@@ -183,6 +183,100 @@ test("組み込み以外のアクションに結び付いたイベントが起�
   await ui.unmount();
 });
 
+test("プロンプトの送信に失敗すると、ペインは送信済みにならず操作を続けられる", async ($, on) => {
+  // Arrange
+  mock.clock(on);
+  on("ui.open", () => ({ value: { isPlaced: true } }));
+  on("prompt.submit", () => {
+    throw new Error("busy");
+  });
+  await $.tool.call({ tool: TOOL, title: "設定", spec: FORM } as never);
+  const ui = await $.ui.mount(pane());
+
+  // Act
+  await ui.press({ key: "create" }).catch(() => undefined);
+
+  // Assert
+  expect(await ui.find({ type: "Text", text: /Sent/ })).toBeUndefined();
+  expect(await ui.find({ key: "create" })).toBeDefined();
+  await ui.unmount();
+});
+
+test("閉じた Collapsible の中の Chart は描かれず、開いたときに初めて magick で変換される", async ($, on) => {
+  // Arrange
+  const { converted } = engine(on);
+  const spec = page({
+    fold: leaf("Collapsible", { title: "詳細" }, { children: ["chart"] }),
+    chart: leaf("Chart", { chart: { type: "sparkline", values: [1, 3, 2] } }),
+  });
+  spec.elements.page.children = ["fold"];
+  await $.tool.call({ tool: TOOL, title: "設定", spec } as never);
+  const ui = await $.ui.mount(pane());
+  const before = converted.length;
+
+  // Act
+  await ui.press({ key: "fold/toggle" });
+
+  // Assert
+  expect(before).toBe(0);
+  expect(converted).toHaveLength(1);
+  await ui.unmount();
+});
+
+test("max が state から 0 になった Progress は、value が max に達しているので 100% と描く", async ($, on) => {
+  // Arrange
+  engine(on);
+  const spec = page({ p: leaf("Progress", { value: 0, max: { $state: "/total" } }) }, { total: 0 });
+  await $.tool.call({ tool: TOOL, title: "設定", spec } as never);
+
+  // Act
+  const ui = await $.ui.mount(pane());
+
+  // Assert
+  expect((await ui.find({ type: "Text", text: /%$/ }))?.text).toBe("100%");
+  await ui.unmount();
+});
+
+test("repeat の key がある行の入力欄は、行を消しても項目の key で区別され、残った行が消えた行の欄を引き継がない", async ($, on) => {
+  // Arrange
+  engine(on);
+  const spec = page(
+    {
+      rows: leaf(
+        "Stack",
+        {},
+        { repeat: { statePath: "/items", key: "id" }, children: ["name", "drop"] },
+      ),
+      name: leaf("Input", { label: "名前" }),
+      drop: leaf(
+        "Button",
+        { label: "消す" },
+        {
+          on: {
+            press: {
+              action: "removeState",
+              params: { statePath: "/items", index: { $index: true } },
+            },
+          },
+        },
+      ),
+    },
+    { items: [{ id: "a" }, { id: "b" }] },
+  );
+  spec.elements.page.children = ["rows"];
+  await $.tool.call({ tool: TOOL, title: "設定", spec } as never);
+  const ui = await $.ui.mount(pane());
+  const before = (await ui.findAll({ type: "Input" })).map((i) => i.key);
+
+  // Act
+  await ui.press({ key: "drop@/a" });
+
+  // Assert
+  expect(before).toEqual(["name@/a", "name@/b"]);
+  expect((await ui.findAll({ type: "Input" })).map((i) => i.key)).toEqual(["name@/b"]);
+  await ui.unmount();
+});
+
 test("入力欄で Enter を押すと、欄が作り直され、入力した値が表示されたまま残る", async ($, on) => {
   // Arrange
   engine(on);

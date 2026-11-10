@@ -48,3 +48,28 @@ await test("$computed を使う spec を関数なしで調べると、解決で�
     "elements.t: $computed resolves to undefined, no functions are registered",
   ]);
 });
+
+await test("組み込みアクションに confirm を付けた spec を調べると、確認が出ないことが警告として返る", () => {
+  // Arrange
+  const spec = page({
+    b: {
+      type: "Button",
+      props: { label: "消す" },
+      on: {
+        press: {
+          action: "removeState",
+          params: { statePath: "/items", index: 0 },
+          confirm: { title: "消しますか", message: "元に戻せません" },
+        },
+      },
+    },
+  });
+
+  // Act
+  const { warnings } = check(catalog, spec);
+
+  // Assert
+  assert.deepEqual(warnings, [
+    "elements.b.on removeState: confirm is not shown for built-in actions",
+  ]);
+});

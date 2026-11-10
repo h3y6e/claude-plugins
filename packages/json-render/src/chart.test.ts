@@ -58,3 +58,18 @@ await test("base64 の data:image/svg+xml URL の Image は、UTF-8 として復
   // Assert
   assert.deepEqual(picture, { svg, width: 80, height: 32, alt: "図" });
 });
+
+await test("外部 DTD、xml-stylesheet、CSS エスケープで外を参照する SVG の Image は、どれもエラーになる", () => {
+  // Arrange
+  const svgs = [
+    '<!DOCTYPE svg SYSTEM "http://example.com/x.dtd"><svg xmlns="http://www.w3.org/2000/svg"/>',
+    '<?xml-stylesheet href="http://example.com/x.css"?><svg xmlns="http://www.w3.org/2000/svg"/>',
+    '<svg xmlns="http://www.w3.org/2000/svg"><style>rect{fill:u\\72l(http://example.com/x)}</style></svg>',
+  ];
+
+  // Act
+  const draws = svgs.map((svg) => () => drawImage(svg, "図"));
+
+  // Assert
+  for (const draw of draws) assert.throws(draw, /refers to something outside itself/);
+});

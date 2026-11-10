@@ -117,6 +117,9 @@ const OUTSIDE = [
   /url\(\s*["']?\s*(?!#)[^)]*/i,
   /<!ENTITY[^>]*\b(?:SYSTEM|PUBLIC)\b[^>]*/i,
   /@import[^;]*/i,
+  /<!DOCTYPE[^>]*\b(?:SYSTEM|PUBLIC)\b[^>[]*/i,
+  /<\?xml-stylesheet[^>]*/i,
+  /<style[^>]*>[^<]*\\[^<]*|style\s*=\s*(["'])[^"']*\\[^"']*\1/i,
 ];
 
 const decode = (url: string) => {

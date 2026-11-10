@@ -2,6 +2,8 @@ import { getByPath, resolveElementProps, setByPath, validateSpec } from "@json-r
 import type { Catalog, Spec } from "@json-render/core";
 import type { ZodObject } from "zod";
 
+import { BUILT_IN } from "./actions.ts";
+
 type Element = Spec["elements"][string];
 type Issue = { isError: boolean; text: string };
 
@@ -57,6 +59,12 @@ const limits = (id: string, el: Element, hasFunctions: boolean): Issue[] => {
     ...(typeof el.props === "object" && el.props !== null && "checks" in el.props
       ? [{ isError: false, text: `${at}.props.checks: ignored, inputs are not validated` }]
       : []),
+    ...bindings
+      .filter((b) => b.confirm && BUILT_IN.has(b.action))
+      .map((b) => ({
+        isError: false,
+        text: `${at}.on ${b.action}: confirm is not shown for built-in actions`,
+      })),
     ...bindings
       .filter((b) => b.onSuccess || b.onError)
       .map((b) => ({
