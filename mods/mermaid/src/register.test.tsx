@@ -137,3 +137,33 @@ test(
     await ui.unmount();
   },
 );
+
+test(
+  "SVG の書き込みが一度失敗した mermaid ブロックをもう一度描画すると、書き込みが再実行され、リンクが付く",
+  SLOW,
+  async ($, on) => {
+    // Arrange
+    const retry = "```mermaid\ngraph LR\n  C --> D\n```";
+    const written: string[] = [];
+    on("env.get", () => ({ value: "/tmp" }));
+    on("fs.write", (_, e) => {
+      written.push(e.path);
+      return written.length === 1 ? { deny: "ENOENT" } : { value: undefined };
+    });
+    on("ui.render", { component: "AssistantMessage" }, ($, e) => {
+      const { Text } = $.ui.resolve(e);
+      return <Text>{e.props.text}</Text>;
+    });
+    await (await $.ui.mount(reply(retry))).unmount();
+
+    // Act
+    const ui = await $.ui.mount(reply(retry));
+
+    // Assert
+    expect(written).toHaveLength(2);
+    expect((await ui.find({ type: "Text", text: /mermaid/ }))?.text).toBe(
+      `${retry}\n${LINK(`file://${written[1]}`)}`,
+    );
+    await ui.unmount();
+  },
+);
