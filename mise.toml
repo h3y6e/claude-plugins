@@ -1,11 +1,15 @@
 [tools]
 aube = "2.8.1"
 claude = "2.1.306"
+imagemagick = "7.1.2_31"
 jactionlint = "2.3.0"
 node = "26.12.1"
 
 [tasks.test]
-run = "for m in mods/*/; do claude plugin test $m || exit 1; done"
+run = [
+  "for m in mods/*/; do claude plugin test $m || exit 1; done",
+  "node --test 'packages/*/src/*.test.ts'",
+]
 
 [tasks.validate]
 run = "claude plugin validate . && for m in mods/*/; do claude plugin validate $m || exit 1; done"

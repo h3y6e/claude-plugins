@@ -24,14 +24,25 @@ importers:
         specifier: 7.0.2
         version: 7.0.2
 
+  mods/dubbed: {}
+
   mods/mermaid:
     devDependencies:
+      '@h3y6e/svg2png':
+        specifier: workspace:*
+        version: link:../../packages/svg2png
       pele:
         specifier: 1.8.0
         version: 1.8.0
       tsdown:
         specifier: 0.23.1
         version: 0.23.1(typescript@7.0.2)
+
+  packages/svg2png:
+    devDependencies:
+      '@types/node':
+        specifier: 26.6.5
+        version: 26.6.5
 
 packages:
 
