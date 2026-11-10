@@ -9,13 +9,17 @@ type Engine = {
 
 const inlineVars = (svg: string) => {
   const vars = Object.fromEntries(
-    [...svg.matchAll(/(--[\w-]+):([^;"]+)/g)].map(([, k, v]) => [k, v]),
+    [...svg.matchAll(/style="([^"]*)"|<style[^>]*>([\s\S]*?)<\/style>/g)]
+      .flatMap(([, attr, element]) => [...(attr ?? element)!.matchAll(/(--[\w-]+):([^;}]+)/g)])
+      .map(([, k, v]) => [k, v]),
   );
   for (let prev = ""; prev !== svg;) {
     prev = svg;
-    svg = svg.replace(
-      /var\((--[\w-]+)(?:,([^()]*))?\)/g,
-      (_, k: string, fallback?: string) => vars[k] ?? fallback ?? "",
+    svg = svg.replace(/<style[^>]*>[\s\S]*?<\/style>|<[^>]*>/g, (markup) =>
+      markup.replace(
+        /var\((--[\w-]+)(?:,([^()]*))?\)/g,
+        (_, k: string, fallback?: string) => vars[k] ?? fallback ?? "",
+      ),
     );
   }
   return svg;
