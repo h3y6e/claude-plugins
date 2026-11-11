@@ -124,11 +124,14 @@ export const register: Register = (on) => {
 
   on("tool.call", { tool: "mcp__napkin__json_render" }, async ($, e) => {
     const { title, spec: input } = e as unknown as { title: string; spec: Spec | string };
-    let spec: Spec;
-    try {
-      spec = typeof input === "string" ? JSON.parse(input) : input;
-    } catch (error) {
-      return { result: `Invalid spec:\n${(error as SyntaxError).message}` };
+    let spec = input as Spec;
+    if (typeof input === "string") {
+      try {
+        spec = JSON.parse(input);
+      } catch (error) {
+        const reasons = [(error as SyntaxError).message, ...unmatched(input)];
+        return { result: `Invalid spec:\n${reasons.join("\n")}` };
+      }
     }
     const { errors, warnings } = check(catalog, spec as CoreSpec);
     if (errors.length) return { result: `Invalid spec:\n${errors.join("\n")}` };
@@ -272,6 +275,23 @@ export const register: Register = (on) => {
     };
     return drawPane($, { ...base, act });
   });
+};
+
+const unmatched = (text: string) => {
+  const closers: string[] = [];
+  let isInString = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i]!;
+    if (isInString) {
+      if (c === "\\") i++;
+      else if (c === '"') isInString = false;
+    } else if (c === '"') isInString = true;
+    else if (c === "{" || c === "[") closers.push(c === "{" ? "}" : "]");
+    else if ((c === "}" || c === "]") && closers.pop() !== c)
+      return [`Unmatched ${c} after: …${text.slice(Math.max(0, i - 60), i)}`];
+  }
+  if (isInString) return ["Unterminated string at the end"];
+  return closers.length ? [`Missing ${closers.reverse().join("")} at the end`] : [];
 };
 
 const isOpenByDefault = (spec: Spec, key: string) =>

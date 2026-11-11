@@ -134,18 +134,36 @@ test("カタログに合わない spec は、問題点がツールの結果と�
   expect(opened).toEqual([]);
 });
 
-test("spec を JSON 文字列で渡すと、パースしてオブジェクトと同じく描き、パースできなければその理由が返る", async ($, on) => {
+test("spec を JSON 文字列で渡すと、パースしてオブジェクトと同じく描き、パースできなければパーサーの理由に、括弧が合わない場所を添えて返る", async ($, on) => {
   // Arrange
   const { opened } = engine(on);
-  const spec = JSON.stringify(page({ h: leaf("Heading", { text: "見出し" }) }));
+  const spec = JSON.stringify(page({ t: leaf("Table", { columns: ["a"], rows: [["1"]] }) }));
+  const call = async (text: string) =>
+    ((await $.tool.call({ tool: TOOL, title: "設定", spec: text } as never)) as { result: string })
+      .result;
 
   // Act
-  const parsed = await $.tool.call({ tool: TOOL, title: "設定", spec } as never);
-  const broken = await $.tool.call({ tool: TOOL, title: "設定", spec: spec.slice(0, -1) } as never);
+  const parsed = await call(spec);
+  const extra = await call(spec.replace(`]]},"children":[]`, `]]}},"children":[]`));
+  const cut = await call(spec.slice(0, -1));
+  const unterminated = await call(spec.slice(0, spec.indexOf(`"a"`) + 2));
+  const comma = await call(spec.replace(`["a"]`, `["a",]`));
 
   // Assert
-  expect((parsed as { result: string }).result).toMatch(/^Shown in the pane\./);
-  expect((broken as { result: string }).result).toMatch(/^Invalid spec:\n.*JSON/);
+  expect(parsed).toMatch(/^Shown in the pane\./);
+  const reason = expect.stringMatching(/JSON/);
+  expect(extra.split("\n")).toEqual([
+    "Invalid spec:",
+    reason,
+    `Unmatched } after: …e","props":{"columns":["a"],"rows":[["1"]]}},"children":[]}}`,
+  ]);
+  expect(cut.split("\n")).toEqual(["Invalid spec:", reason, "Missing } at the end"]);
+  expect(unterminated.split("\n")).toEqual([
+    "Invalid spec:",
+    reason,
+    "Unterminated string at the end",
+  ]);
+  expect(comma.split("\n")).toEqual(["Invalid spec:", reason]);
   expect(opened).toEqual(["napkin"]);
 });
 
