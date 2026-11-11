@@ -11,10 +11,10 @@
     "typecheck": "tsc && aubr -r typecheck"
   },
   "devDependencies": {
-    "@types/node": "26.6.5",
-    "oxfmt": "0.74.0",
-    "oxlint": "1.89.0",
-    "oxlint-tsgolint": "7.0.2004",
+    "@types/node": "26.6.6",
+    "oxfmt": "0.77.0",
+    "oxlint": "1.92.0",
+    "oxlint-tsgolint": "7.0.2006",
     "typescript": "7.0.2"
   }
 }

@@ -1,9 +1,9 @@
 [tools]
-aube = "2.8.1"
-claude = "2.1.306"
+aube = "v2.9.0"
+claude = "2.1.317"
 imagemagick = "7.1.2_31"
-jactionlint = "2.3.0"
-node = "26.12.1"
+jactionlint = "v2.4.0"
+node = "26.13.0"
 
 [tasks.test]
 run = [
