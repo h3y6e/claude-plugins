@@ -160,8 +160,8 @@ export const register: Register = (on) => {
 
   on("ui.render", { component: "ToolUse" }, async (_, e, next) => {
     if (e.props.tool !== "mcp__napkin__json_render" || e.props.isExpanded) return next(e);
-    const { title } = e.props.input as Call;
-    return next({ ...e, props: { ...e.props, input: { title } } });
+    const { spec: _spec, ...input } = e.props.input as Partial<Call>;
+    return next({ ...e, props: { ...e.props, input } });
   });
 
   on("ui.render", { component: "ToolResult" }, async ($, e, next) => {

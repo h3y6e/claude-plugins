@@ -34,17 +34,9 @@ const convert = async ($: Engine, svg: string) => {
   return stdout.slice(stdout.indexOf(",") + 1);
 };
 
-const pngs = new Map<string, Promise<string>>();
+const pngs = new Map<string, string>();
 
-export const toPng = ($: Engine, svg: string) => {
-  if (!pngs.has(svg)) {
-    pngs.set(
-      svg,
-      convert($, svg).catch((error: unknown) => {
-        pngs.delete(svg);
-        throw error;
-      }),
-    );
-  }
+export const toPng = async ($: Engine, svg: string) => {
+  if (!pngs.has(svg)) pngs.set(svg, await convert($, svg));
   return pngs.get(svg)!;
 };

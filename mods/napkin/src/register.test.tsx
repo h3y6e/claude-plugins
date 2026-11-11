@@ -580,6 +580,36 @@ test("ツール行は、畳まれている間は title だけを示し、ペイ�
   await result.unmount();
 });
 
+test("入力がまだ届いていないツール行は、input に title のキーを足さずに描かせる", async ($, on) => {
+  // Arrange
+  engine(on);
+  on("ui.render", ($, e) => {
+    const { Text } = $.ui.resolve(e);
+    return <Text>{Object.keys((e.props as { input: object }).input).join(",")}</Text>;
+  });
+
+  // Act
+  const use = await $.ui.mount({
+    plugin: "napkin",
+    component: "ToolUse",
+    requestId: "call-1",
+    surface: "terminal",
+    viewport: { columns: 100, rows: 40 },
+    props: {
+      tool_use_id: "call-1",
+      tool: TOOL,
+      input: {},
+      isRunning: true,
+      isErrored: false,
+      isInterrupted: false,
+    },
+  } as never);
+
+  // Assert
+  expect((await use.find({ type: "Text" }))?.text).toBe("");
+  await use.unmount();
+});
+
 test("/napkin は、ペインが出ていなければ開き、出ていれば閉じる", async ($, on) => {
   // Arrange
   let isPlaced = false;
