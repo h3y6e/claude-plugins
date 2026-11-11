@@ -1,5 +1,5 @@
 {
   "name": "mermaid",
-  "version": "2026.11.2",
+  "version": "2026.11.3",
   "description": "Claude の返信の mermaid ブロックごとに SVG へのリンクを付け、ターミナルでは画像で表示する"
 }
