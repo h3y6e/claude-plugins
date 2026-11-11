@@ -17,10 +17,10 @@ import type { Elements, EngineInterface, Register, RenderSurface } from "claude-
 
 import type { ActionBinding, Call, Json, Spec, View } from "../types";
 
-const PANE = "whiteboard";
+const PANE = "napkin";
 
-const view = atom({ plugin: "whiteboard", key: "view" } as const, null, { shape: "view-5" });
-const call = atom({ plugin: "whiteboard", key: "call" } as const, null);
+const view = atom({ plugin: "napkin", key: "view" } as const, null, { shape: "view-5" });
+const call = atom({ plugin: "napkin", key: "call" } as const, null);
 
 const catalog = defineCatalog(schema, { components: standardComponentDefinitions });
 
@@ -30,7 +30,7 @@ let ticker: Timer | undefined;
 const send = async ($: EngineInterface, action: string, params: View["state"]) => {
   const cur = (await read($, view))!;
   await $.prompt.submit({
-    text: `[whiteboard] "${cur.title}" ${action}\n${JSON.stringify({ params, state: cur.state }, null, 2)}`,
+    text: `[napkin] "${cur.title}" ${action}\n${JSON.stringify({ params, state: cur.state }, null, 2)}`,
   });
   await update($, view, (c) => c && { ...c, pending: null, isSent: true });
 };
@@ -106,8 +106,8 @@ ${describe(catalog)}`;
 export const register: Register = (on) => {
   on("session.start", async ($, e, next) => {
     await $.command.register({
-      name: "whiteboard",
-      description: "Show or hide the whiteboard pane",
+      name: "napkin",
+      description: "Show or hide the napkin pane",
     });
     await $.tool.register({
       name: "json_render",
@@ -122,7 +122,7 @@ export const register: Register = (on) => {
     return next(e);
   });
 
-  on("tool.call", { tool: "mcp__whiteboard__json_render" }, async ($, e) => {
+  on("tool.call", { tool: "mcp__napkin__json_render" }, async ($, e) => {
     const { title, spec: input } = e as unknown as { title: string; spec: Spec | string };
     let spec: Spec;
     try {
@@ -145,27 +145,27 @@ export const register: Register = (on) => {
     const opened = await $.ui.open({ id: PANE, title });
     const shown = opened.isPlaced
       ? "Shown in the pane."
-      : `Not drawn yet: ${opened.reason}. The person can open it with /whiteboard.`;
+      : `Not drawn yet: ${opened.reason}. The person can open it with /napkin.`;
     return { result: [shown, ...warnings.map((w) => `Warning: ${w}`)].join("\n") };
   });
 
-  on("command.run", { command: "whiteboard" }, async ($) => {
+  on("command.run", { command: "napkin" }, async ($) => {
     if ((await $.ui.panes()).some((pane) => pane.id === PANE && pane.isPlaced)) {
       await $.ui.close({ id: PANE });
       return { text: "pane hidden" };
     }
-    await $.ui.open({ id: PANE, title: (await read($, view))?.title ?? "whiteboard" });
+    await $.ui.open({ id: PANE, title: (await read($, view))?.title ?? "napkin" });
     return { text: "pane shown" };
   });
 
   on("ui.render", { component: "ToolUse" }, async (_, e, next) => {
-    if (e.props.tool !== "mcp__whiteboard__json_render" || e.props.isExpanded) return next(e);
+    if (e.props.tool !== "mcp__napkin__json_render" || e.props.isExpanded) return next(e);
     const { title } = e.props.input as Call;
     return next({ ...e, props: { ...e.props, input: { title } } });
   });
 
   on("ui.render", { component: "ToolResult" }, async ($, e, next) => {
-    if (e.props.tool !== "mcp__whiteboard__json_render") return next(e);
+    if (e.props.tool !== "mcp__napkin__json_render") return next(e);
     const shown = await read($, memberOf(call, e));
     if (!shown || e.props.isErrored) return next(e);
     const ui = $.ui.resolve(e) as Elements[RenderSurface];
@@ -178,11 +178,7 @@ export const register: Register = (on) => {
           <ui.Text>
             {isPlaced ? "Shown in the pane" : "Pane not shown"} · {count} elements
             <ui.Text dimColor>
-              {isPlaced
-                ? e.props.isExpanded
-                  ? ""
-                  : " (ctrl+o to expand)"
-                : " · /whiteboard to open"}
+              {isPlaced ? (e.props.isExpanded ? "" : " (ctrl+o to expand)") : " · /napkin to open"}
             </ui.Text>
           </ui.Text>
         </ui.Box>

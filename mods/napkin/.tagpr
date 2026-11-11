@@ -1,0 +1,7 @@
+[tagpr]
+	vPrefix = false
+	releaseBranch = main
+	tagPrefix = mods/napkin
+	versionFile = mods/napkin/.claude-plugin/plugin.json,mods/napkin/package.json
+	changelog = false
+	calendarVersioning = YYYY.MM.MICRO
