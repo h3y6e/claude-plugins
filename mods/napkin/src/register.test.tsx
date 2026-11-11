@@ -1,7 +1,7 @@
 import type { On, RenderSurface } from "claude-code";
 import { expect, mock, test } from "claude-code/testing";
 
-const TOOL = "mcp__whiteboard__json_render";
+const TOOL = "mcp__napkin__json_render";
 const PNG =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR4nGNgAAAAAgABSK+kcQAAAABJRU5ErkJggg==";
 
@@ -57,9 +57,9 @@ const FORM = page(
 
 const pane = <S extends RenderSurface = "terminal">(surface: S = "terminal" as S) =>
   ({
-    plugin: "whiteboard",
+    plugin: "napkin",
     component: "Pane",
-    requestId: "whiteboard",
+    requestId: "napkin",
     surface,
     props: {
       title: "設定",
@@ -115,7 +115,7 @@ test("ターミナルで、正しい spec を描かせると、ペインにそ�
 
   // Assert
   expect(called).toMatchObject({ result: "Shown in the pane." });
-  expect(opened).toEqual(["whiteboard"]);
+  expect(opened).toEqual(["napkin"]);
   expect((await ui.find({ type: "Text", text: /リポジトリ設定/ }))?.text).toBe("リポジトリ設定");
   expect((await ui.find({ key: "name" }))?.props.label).toBe("名前");
   await ui.unmount();
@@ -146,7 +146,7 @@ test("spec を JSON 文字列で渡すと、パースしてオブジェクトと
   // Assert
   expect((parsed as { result: string }).result).toMatch(/^Shown in the pane\./);
   expect((broken as { result: string }).result).toMatch(/^Invalid spec:\n.*JSON/);
-  expect(opened).toEqual(["whiteboard"]);
+  expect(opened).toEqual(["napkin"]);
 });
 
 test("組み込みアクションに結び付いたイベントが起きると、state が更新されて描き直される", async ($, on) => {
@@ -177,7 +177,7 @@ test("組み込み以外のアクションに結び付いたイベントが起�
   await ui.press({ key: "create" });
 
   // Assert
-  expect(prompts[0]).toMatch(/^\[whiteboard\] "設定" create\n/);
+  expect(prompts[0]).toMatch(/^\[napkin\] "設定" create\n/);
   expect(sent(prompts).state).toEqual({ name: "repo", items: ["a"] });
   expect((await ui.find({ type: "Text", text: /Sent/ }))?.text).toBe("✔ Sent to Claude.");
   await ui.unmount();
@@ -552,7 +552,7 @@ test("ツール行は、畳まれている間は title だけを示し、ペイ�
   await $.tool.call({ tool: TOOL, tool_use_id: "call-1", title: "設定", spec: FORM } as never);
   const row = (component: "ToolUse" | "ToolResult", props: Record<string, unknown>) =>
     ({
-      plugin: "whiteboard",
+      plugin: "napkin",
       component,
       requestId: "call-1",
       surface: "terminal",
@@ -580,19 +580,19 @@ test("ツール行は、畳まれている間は title だけを示し、ペイ�
   await result.unmount();
 });
 
-test("/whiteboard は、ペインが出ていなければ開き、出ていれば閉じる", async ($, on) => {
+test("/napkin は、ペインが出ていなければ開き、出ていれば閉じる", async ($, on) => {
   // Arrange
   let isPlaced = false;
   on("ui.panes", () => ({
     value: isPlaced
       ? [
           {
-            id: "whiteboard",
+            id: "napkin",
             title: "設定",
             isShown: true,
             isFocused: false,
             isPlaced: true,
-            plugin: "whiteboard",
+            plugin: "napkin",
           },
         ]
       : [],
@@ -605,7 +605,7 @@ test("/whiteboard は、ペインが出ていなければ開き、出ていれ�
     isPlaced = false;
     return { value: undefined };
   });
-  const run = () => $.command.run({ command: "whiteboard", args: "" } as never);
+  const run = () => $.command.run({ command: "napkin", args: "" } as never);
 
   // Act
   const shown = await run();

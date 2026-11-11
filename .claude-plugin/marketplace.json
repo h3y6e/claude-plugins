@@ -4,6 +4,6 @@
   "plugins": [
     { "name": "mermaid", "source": "./mods/mermaid" },
     { "name": "dubbed", "source": "./mods/dubbed" },
-    { "name": "whiteboard", "source": "./mods/whiteboard" }
+    { "name": "napkin", "source": "./mods/napkin" }
   ]
 }

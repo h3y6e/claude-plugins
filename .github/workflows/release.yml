@@ -21,8 +21,8 @@ jobs:
             branch: tagpr-from-mods-mermaid-
           - dir: mods/dubbed
             branch: tagpr-from-mods-dubbed-
-          - dir: mods/whiteboard
-            branch: tagpr-from-mods-whiteboard-
+          - dir: mods/napkin
+            branch: tagpr-from-mods-napkin-
     concurrency:
       group: release-${{ matrix.plugin.dir }}
       cancel-in-progress: false

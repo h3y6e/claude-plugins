@@ -47,7 +47,7 @@ export type Call = { title: string; spec: Spec };
 
 declare module "claude-code" {
   interface PluginState {
-    whiteboard: {
+    napkin: {
       view: Shaped<View | null>;
       call: StateFamily<Call | null>;
     };
