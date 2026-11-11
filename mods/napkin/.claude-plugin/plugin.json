@@ -1,6 +1,6 @@
 {
   "name": "napkin",
-  "version": "2026.11.0",
+  "version": "2026.11.1",
   "description": "json-render の spec をチャットの横のペインに描き、操作の結果を次のプロンプトにする",
   "types": "./types/index.d.ts"
 }
