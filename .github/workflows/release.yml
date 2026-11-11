@@ -51,7 +51,7 @@ jobs:
           ref: ${{ github.base_ref }}
           persist-credentials: false
       - if: steps.app-token.outcome == 'success'
-        uses: Songmu/tagpr@v1.21.3
+        uses: Songmu/tagpr@v1.22.0
         with:
           config: ${{ matrix.plugin.dir }}/.tagpr
         env:

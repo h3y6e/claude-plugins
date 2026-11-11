@@ -5,11 +5,11 @@ version: 'v0.0.3'
 workflows:
     '.github/workflows/check.yml':
         - 'actions/checkout@v7.0.1'
-        - 'jdx/mise-action@v5.2.2'
+        - 'jdx/mise-action@v5.2.6'
     '.github/workflows/release.yml':
         - 'actions/checkout@v7.0.1'
         - 'actions/create-github-app-token@v3.3.0'
-        - 'songmu/tagpr@v1.21.3'
+        - 'songmu/tagpr@v1.22.0'
 dependencies:
     'actions/checkout@v7.0.1':
         ref: 'v7.0.1'
@@ -21,13 +21,13 @@ dependencies:
         commit: 'sha1-64ab729a6294000f5aa4a4bc0b73d1f32bc45510'
         owner_id: 44036562
         repo_id: 642580244
-    'jdx/mise-action@v5.2.2':
-        ref: 'v5.2.2'
-        commit: 'sha1-8418fedb1110381a0d3ba51a7a415d7c1b884550'
+    'jdx/mise-action@v5.2.6':
+        ref: 'v5.2.6'
+        commit: 'sha1-f5be966e4a917d54244728e6a5fdcd1d93a35e6c'
         owner_id: 216188
         repo_id: 738284564
-    'songmu/tagpr@v1.21.3':
-        ref: 'v1.21.3'
-        commit: 'sha1-1fcd7292d1fe8ea9a8313eef46b8d80b7a15d227'
+    'songmu/tagpr@v1.22.0':
+        ref: 'v1.22.0'
+        commit: 'sha1-047aec4b6c0ce166f52958b5a97f5a3d927fd65b'
         owner_id: 177122
         repo_id: 524603982
