@@ -72,7 +72,7 @@ await test("magick が 0 以外で終了すると、変換はその stderr を�
   assert.deepEqual(error, new Error("magick: no decode delegate"));
 });
 
-await test("同じ SVG を 2 回変換すると、magick は 1 回だけ実行される", async () => {
+await test("変換し終えた SVG をもう一度変換すると、magick は再実行されない", async () => {
   // Arrange
   const { $, runs } = engine();
 
@@ -96,6 +96,29 @@ await test("変換が失敗した SVG をもう一度変換すると、magick �
   // Assert
   assert.equal(runs.length, 1);
   assert.equal(png, PNG);
+});
+
+await test("変換中に最初の呼び出しの magick が中断されると、同時に同じ SVG を変換した 2 つ目の呼び出しは PNG を得る", async () => {
+  // Arrange
+  const aborted = {
+    process: {
+      run: async () => {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        throw new Error("$.process.run(magick) aborted");
+      },
+    },
+  };
+  const { $ } = engine();
+
+  // Act
+  const [first, second] = await Promise.allSettled([
+    toPng(aborted, "<svg>aborted</svg>"),
+    toPng($, "<svg>aborted</svg>"),
+  ]);
+
+  // Assert
+  assert.equal(first.status, "rejected");
+  assert.deepEqual(second, { status: "fulfilled", value: PNG });
 });
 
 await test("magick が data URL を返すと、変換結果はカンマより後ろの base64 になる", async () => {
