@@ -7,6 +7,8 @@ const PENDING = 8;
 const FENCE = /^(`{3,}[^\n]*\n(?:[\s\S]*?\n)?`{3,})[ \t]*$/m;
 const GAP = /(\s*\n\s*\n\s*|^\s+|\s+$)/;
 const CODE = /`[^`\n]*`/g;
+const QUOTE = /「[^」\n]*」/g;
+const HIRAGANA = /\p{Script=Hiragana}/u;
 const KANA = /[\p{Script=Hiragana}\p{Script=Katakana}]/u;
 const KANJI = /\p{Script=Han}/u;
 const LATIN = /\p{Script=Latin}/u;
@@ -14,7 +16,7 @@ const LATIN = /\p{Script=Latin}/u;
 const LANGS = {
   ja: {
     lang: "ja",
-    needsDub: (prose: string) => LATIN.test(prose) && !KANA.test(prose),
+    needsDub: (prose: string) => LATIN.test(prose) && !HIRAGANA.test(prose.replace(QUOTE, "")),
     original: "原文",
   },
   en: {

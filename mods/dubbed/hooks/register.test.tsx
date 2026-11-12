@@ -326,6 +326,38 @@ test("返信が日本語の段落とラテン文字を含まない段落だけ�
   await ui.unmount();
 });
 
+test("英語の段落にカタカナの語が含まれていても、ひらがながなければ訳される", async ($, on) => {
+  // Arrange
+  const { prompts } = engine(on, {
+    "Open the メニュー page.": "メニューのページを開きます。",
+  });
+
+  // Act
+  const ui = await $.ui.mount(reply("Open the メニュー page."));
+
+  // Assert
+  expect(prompts.map(source)).toEqual(["Open the メニュー page."]);
+  expect((await ui.find({ type: "Text" }))?.text).toContain("メニューのページを開きます。");
+  await ui.unmount();
+});
+
+test("英語の段落のひらがなが「」の中だけにあると、訳される", async ($, on) => {
+  // Arrange
+  const { prompts } = engine(on, {
+    "The button reads 「保存する」 now.": "ボタンの表示は「保存する」になりました。",
+  });
+
+  // Act
+  const ui = await $.ui.mount(reply("The button reads 「保存する」 now."));
+
+  // Assert
+  expect(prompts.map(source)).toEqual(["The button reads 「保存する」 now."]);
+  expect((await ui.find({ type: "Text" }))?.text).toContain(
+    "ボタンの表示は「保存する」になりました。",
+  );
+  await ui.unmount();
+});
+
 test("翻訳サーバーへのリクエストが失敗すると、何度描画されても返信はそのままでトーストは1回だけ出て、復旧後の描画では訳される", async ($, on) => {
   // Arrange
   const server = { status: 503 };
