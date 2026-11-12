@@ -7,7 +7,7 @@ type Engine = {
   };
 };
 
-const inlineVars = (svg: string) => {
+export const inlineVars = (svg: string) => {
   const vars = Object.fromEntries(
     [...svg.matchAll(/style=(["'])([\s\S]*?)\1|<style[^>]*>([\s\S]*?)<\/style>/g)]
       .flatMap(([, , attr, element]) => [...(attr ?? element)!.matchAll(/(--[\w-]+):([^;}]+)/g)])
