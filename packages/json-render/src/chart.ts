@@ -123,7 +123,7 @@ const OUTSIDE = [
 ];
 
 const SVG_DOCTYPE =
-  /<!DOCTYPE\s+svg\s+PUBLIC\s+(?:"-\/\/W3C\/\/DTD SVG 1\.1\/\/EN"\s+"http:\/\/www\.w3\.org\/Graphics\/SVG\/1\.1\/DTD\/svg11\.dtd"|"-\/\/W3C\/\/DTD SVG 20010904\/\/EN"\s+"http:\/\/www\.w3\.org\/TR\/2001\/REC-SVG-20010904\/DTD\/svg10\.dtd")\s*>/;
+  /<!DOCTYPE\s+svg\s+PUBLIC\s+(?:["']-\/\/W3C\/\/DTD SVG 1\.1\/\/EN["']\s+["']http:\/\/www\.w3\.org\/Graphics\/SVG\/1\.1\/DTD\/svg11\.dtd["']|["']-\/\/W3C\/\/DTD SVG 20010904\/\/EN["']\s+["']http:\/\/www\.w3\.org\/TR\/2001\/REC-SVG-20010904\/DTD\/svg10\.dtd["'])\s*>/;
 
 const decode = (url: string) => {
   const [head, body] = [url.slice(0, url.indexOf(",")), url.slice(url.indexOf(",") + 1)];
@@ -141,8 +141,8 @@ export const drawImage = (src: string, alt: string): Picture | { png: string; al
   const outside = OUTSIDE.map((re) => source.match(re)?.[0]).find(Boolean);
   if (outside) throw new Error(`the SVG refers to something outside itself: ${outside}`);
   const root = source.match(/<svg\b[^>]*>/)?.[0] ?? "";
-  const size = (name: string) => Number(root.match(new RegExp(`\\s${name}="([\\d.]+)`))?.[1]);
-  const box = root.match(/viewBox="[\d.\s-]*?([\d.]+)\s+([\d.]+)"/);
+  const size = (name: string) => Number(root.match(new RegExp(`\\s${name}=["']([\\d.]+)`))?.[1]);
+  const box = root.match(/viewBox=["'][\d.\s-]*?([\d.]+)\s+([\d.]+)["']/);
   return {
     svg: source,
     width: size("width") || Number(box?.[1]) || 320,

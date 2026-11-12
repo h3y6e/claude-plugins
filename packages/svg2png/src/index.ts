@@ -9,8 +9,8 @@ type Engine = {
 
 const inlineVars = (svg: string) => {
   const vars = Object.fromEntries(
-    [...svg.matchAll(/style="([^"]*)"|<style[^>]*>([\s\S]*?)<\/style>/g)]
-      .flatMap(([, attr, element]) => [...(attr ?? element)!.matchAll(/(--[\w-]+):([^;}]+)/g)])
+    [...svg.matchAll(/style=(["'])([\s\S]*?)\1|<style[^>]*>([\s\S]*?)<\/style>/g)]
+      .flatMap(([, , attr, element]) => [...(attr ?? element)!.matchAll(/(--[\w-]+):([^;}]+)/g)])
       .map(([, k, v]) => [k, v]),
   );
   for (let prev = ""; prev !== svg;) {
