@@ -326,7 +326,7 @@ test("返信が日本語の段落とラテン文字を含まない段落だけ�
   await ui.unmount();
 });
 
-test("英語の段落にカタカナの語が含まれていても、ひらがながなければ訳される", async ($, on) => {
+test("英語の段落にカタカナの語が含まれていても、訳される", async ($, on) => {
   // Arrange
   const { prompts } = engine(on, {
     "Open the メニュー page.": "メニューのページを開きます。",
@@ -355,6 +355,35 @@ test("英語の段落のひらがなが「」の中だけにあると、訳さ�
   expect((await ui.find({ type: "Text" }))?.text).toContain(
     "ボタンの表示は「保存する」になりました。",
   );
+  await ui.unmount();
+});
+
+test("英語の段落に「さん」付けの名前があっても、訳される", async ($, on) => {
+  // Arrange
+  const text = "Ask 田中さん and 鈴木さん about the schedule.";
+  const { prompts } = engine(on, { [text]: "予定は田中さんと鈴木さんに聞いてください。" });
+
+  // Act
+  const ui = await $.ui.mount(reply(text));
+
+  // Assert
+  expect(prompts.map(source)).toEqual([text]);
+  expect((await ui.find({ type: "Text" }))?.text).toContain(
+    "予定は田中さんと鈴木さんに聞いてください。",
+  );
+  await ui.unmount();
+});
+
+test("日本語の文に英単語がいくつか含まれていても、訳さずそのまま描画される", async ($, on) => {
+  // Arrange
+  const { prompts } = engine(on, {});
+
+  // Act
+  const ui = await $.ui.mount(reply("この PR では README と CI の設定を更新しました。"));
+
+  // Assert
+  expect(prompts).toEqual([]);
+  expect(await ui.find({ type: "Button" })).toBeUndefined();
   await ui.unmount();
 });
 

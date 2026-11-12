@@ -8,15 +8,18 @@ const FENCE = /^(`{3,}[^\n]*\n(?:[\s\S]*?\n)?`{3,})[ \t]*$/m;
 const GAP = /(\s*\n\s*\n\s*|^\s+|\s+$)/;
 const CODE = /`[^`\n]*`/g;
 const QUOTE = /「[^」\n]*」/g;
-const HIRAGANA = /\p{Script=Hiragana}/u;
+const HIRAGANA = /\p{Script=Hiragana}+/gu;
 const KANA = /[\p{Script=Hiragana}\p{Script=Katakana}]/u;
 const KANJI = /\p{Script=Han}/u;
-const LATIN = /\p{Script=Latin}/u;
+const LATIN = /\p{Script=Latin}+/gu;
 
 const LANGS = {
   ja: {
     lang: "ja",
-    needsDub: (prose: string) => LATIN.test(prose) && !HIRAGANA.test(prose.replace(QUOTE, "")),
+    needsDub: (prose: string) => {
+      const text = prose.replace(QUOTE, "");
+      return [...text.matchAll(LATIN)].length > [...text.matchAll(HIRAGANA)].length;
+    },
     original: "原文",
   },
   en: {
