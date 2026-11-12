@@ -37,13 +37,7 @@ const convert = async ($: Engine, svg: string) => {
 const pngs = new Map<string, string>();
 
 export const toPng = async ($: Engine, svg: string) => {
-  const outside = (svg.match(/<image\b[^<]*/gi) ?? [])
-    .flatMap((tag) => [...tag.matchAll(/([\w:-]+)\s*=\s*("[^"]*"|'[^']*'|[^\s"'>]*)/g)])
-    .filter(([, name]) => /^(?:[\w-]+:)?href$/i.test(name!))
-    .map(([, , value]) => value!.replace(/^(["'])([^]*)\1$/, "$2").trim())
-    .find((href) => !/^(?:data:|#)/i.test(href));
-  if (outside !== undefined)
-    throw new Error(`the SVG refers to an image outside itself: ${outside}`);
+  if (/<image\b/i.test(svg)) throw new Error("the SVG has an <image>, which magick could fetch");
   if (!pngs.has(svg)) pngs.set(svg, await convert($, svg));
   return pngs.get(svg)!;
 };

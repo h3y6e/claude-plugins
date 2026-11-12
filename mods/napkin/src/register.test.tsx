@@ -382,7 +382,7 @@ test("ターミナルで、var() の値を展開すると外を参照する SVG 
   // Arrange
   const { converted } = engine(on);
   const src =
-    '<svg xmlns="http://www.w3.org/2000/svg"><style>svg{--q:"}</style><image x="var(--q) href=var(--q)http://example.invalid/x"/></svg>';
+    '<svg xmlns="http://www.w3.org/2000/svg"><style>svg{--q:"}</style><use x="var(--q) href=var(--q)http://example.invalid/x"/></svg>';
   const spec = page({
     image: leaf("Image", {
       src,
@@ -451,7 +451,7 @@ test("mermaid として読めない source の Mermaid は、読めない理由�
   await ui.unmount();
 });
 
-test("ターミナルで、外の URL の画像を置く Mermaid は、magick に渡さず、その URL を示すエラーを描く", async ($, on) => {
+test("ターミナルで、外の URL の画像を置く Mermaid は、magick に渡さず、image を拒んだエラーを描く", async ($, on) => {
   // Arrange
   const { converted } = engine(on);
   const source = 'flowchart LR\n  A@{ img: "http://example.invalid/x.png", label: "a" } --> B';
@@ -463,9 +463,7 @@ test("ターミナルで、外の URL の画像を置く Mermaid は、magick �
 
   // Assert
   const error = await ui.find({ type: "Text", text: /^mermaid \(Mermaid\): / });
-  expect(error?.text).toBe(
-    "mermaid (Mermaid): the SVG refers to an image outside itself: http://example.invalid/x.png",
-  );
+  expect(error?.text).toBe("mermaid (Mermaid): the SVG has an <image>, which magick could fetch");
   expect(error?.props.color).toBe("red");
   expect(converted).toEqual([]);
   await ui.unmount();
