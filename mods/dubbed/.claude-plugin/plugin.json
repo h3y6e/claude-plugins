@@ -1,6 +1,6 @@
 {
   "name": "dubbed",
-  "version": "2026.11.4",
+  "version": "2026.11.5",
   "description": "Claude の返信や recap を日本語か英語に訳して表示し、原文はその下に折りたたむ",
   "types": "./types/index.d.ts",
   "userConfig": {
