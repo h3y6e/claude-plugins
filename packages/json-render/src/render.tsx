@@ -1,3 +1,4 @@
+import { inlineVars } from "@h3y6e/svg2png";
 import {
   evaluateVisibility,
   getByPath,
@@ -7,6 +8,7 @@ import {
   resolveRepeatStatePath,
 } from "@json-render/core";
 import type { ActionBinding, Spec, StateModel } from "@json-render/core";
+import { render as mermaid } from "pele";
 
 import { cells, drawChart, drawImage } from "./chart";
 import type { ChartProps, Picture } from "./chart";
@@ -36,7 +38,7 @@ export type RenderOptions = {
   state: StateModel;
   cols: number;
   frame: number;
-  pngs?: Map<string, string | undefined>;
+  pngs?: Map<string, string | Error>;
   wanted?: string[];
   spinners?: string[];
   act?: Act;
@@ -156,11 +158,12 @@ const picture = (o: RenderOptions, p: Picture | { png: string; alt: string }) =>
     return <o.ui.Svg source={p.svg} alt={p.alt} width={p.width} height={p.height} />;
   }
   const png = o.pngs?.get(p.svg);
+  if (png instanceof Error) throw png;
   if (!png || !("Image" in o.ui)) {
     if (!o.pngs?.has(p.svg)) o.wanted?.push(p.svg);
     return <Text dimColor>{p.alt}</Text>;
   }
-  const scale = Math.min(1, o.cols / (p.width / 8));
+  const scale = Math.min(1, o.cols / (p.width / 8), 255 / (p.height / 16));
   return (
     <o.ui.Image
       source={{ png }}
@@ -381,6 +384,10 @@ const drawComponent = (
       return picture(o, drawChart(p.title, p.chart as ChartProps));
     case "Image":
       return picture(o, drawImage(p.src, p.alt));
+    case "Mermaid": {
+      const { svg, width, height } = mermaid(p.source);
+      return picture(o, { svg: inlineVars(svg), width, height, alt: p.source });
+    }
     case "Progress": {
       const max = p.max ?? 100;
       const done = p.value >= max ? 1 : Math.max(0, p.value / max);

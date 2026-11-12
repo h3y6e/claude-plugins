@@ -10,4 +10,4 @@ metadata:
 
 Load `mcp__napkin__json_render` with ToolSearch `select:mcp__napkin__json_render` if it is not loaded yet.
 
-Draw the shape rather than text: left alone, the spec becomes Text and Table elements that repeat the chat answer. Use an Image with SVG markup, boxes joined by labelled arrows, for structure and flows, and a Chart for numbers.
+Draw the shape rather than text: left alone, the spec becomes Text and Table elements that repeat the chat answer. Use a Mermaid with mermaid source for structure and flows, and a Chart for numbers.

@@ -87,7 +87,7 @@ const draw = async ($: EngineInterface, options: Omit<RenderOptions, "pngs" | "w
   const tree = render({ ...options, pngs: new Map(), wanted });
   if (!wanted.length) return tree;
   const pngs = await Promise.all(
-    wanted.map(async (svg) => [svg, await toPng($, svg).catch(() => undefined)] as const),
+    wanted.map(async (svg) => [svg, await toPng($, svg).catch((error: Error) => error)] as const),
   );
   return render({ ...options, pngs: new Map(pngs) });
 };

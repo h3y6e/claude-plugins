@@ -37,6 +37,7 @@ const convert = async ($: Engine, svg: string) => {
 const pngs = new Map<string, string>();
 
 export const toPng = async ($: Engine, svg: string) => {
+  if (/<image\b/i.test(svg)) throw new Error("the SVG has an <image>, which magick could fetch");
   if (!pngs.has(svg)) pngs.set(svg, await convert($, svg));
   return pngs.get(svg)!;
 };

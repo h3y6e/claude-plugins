@@ -140,6 +140,30 @@ test(
 );
 
 test(
+  "ターミナルで、外の URL の画像を置く mermaid ブロックは、magick に渡されずソースのまま描画され、後ろの文章も描画される",
+  SLOW,
+  async ($, on) => {
+    // Arrange
+    const { converted } = engine(on, { TMPDIR: "/tmp" });
+    const block =
+      '```mermaid\nflowchart LR\n  A@{ img: "http://example.invalid/x.png", label: "a" } --> B\n```';
+
+    // Act
+    const ui = await $.ui.mount({
+      ...reply(`before\n${block}\nafter`, "terminal"),
+      viewport: { columns: 80, rows: 24 },
+    });
+
+    // Assert
+    expect(converted).toEqual([]);
+    expect(await ui.find({ type: "Image" })).toBeUndefined();
+    expect((await ui.find({ type: "Markdown", text: /example\.invalid/ }))?.text).toBe(block);
+    expect((await ui.find({ type: "Markdown", text: /after/ }))?.text).toBe("after");
+    await ui.unmount();
+  },
+);
+
+test(
   "SVG の書き込みが一度失敗した mermaid ブロックをもう一度描画すると、書き込みが再実行され、リンクが付く",
   SLOW,
   async ($, on) => {
