@@ -163,7 +163,7 @@ const picture = (o: RenderOptions, p: Picture | { png: string; alt: string }) =>
     if (!o.pngs?.has(p.svg)) o.wanted?.push(p.svg);
     return <Text dimColor>{p.alt}</Text>;
   }
-  const scale = Math.min(1, o.cols / (p.width / 8));
+  const scale = Math.min(1, o.cols / (p.width / 8), 255 / (p.height / 16));
   return (
     <o.ui.Image
       source={{ png }}

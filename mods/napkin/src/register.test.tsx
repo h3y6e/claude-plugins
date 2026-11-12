@@ -418,6 +418,23 @@ test("ターミナルでは、ラベルに url( や @import を含む Mermaid �
   await ui.unmount();
 });
 
+test("ターミナルで、縦に長い Mermaid は、高さを 255 行に収めるよう縦横を同じ比率で縮めた Image で描く", async ($, on) => {
+  // Arrange
+  engine(on);
+  const source = `flowchart TD\n${Array.from({ length: 80 }, (_, i) => `  N${i} --> N${i + 1}`).join("\n")}`;
+  const spec = page({ mermaid: leaf("Mermaid", { source }) });
+  await $.tool.call({ tool: TOOL, title: "設定", spec } as never);
+
+  // Act
+  const ui = await $.ui.mount(pane());
+
+  // Assert
+  const image = (await ui.find({ type: "Image" }))!;
+  expect(image.props.rows).toBe(255);
+  expect(image.props.columns).toBeLessThan(10);
+  await ui.unmount();
+});
+
 test("mermaid として読めない source の Mermaid は、読めない理由を要素のエラーとして描く", async ($, on) => {
   // Arrange
   const { converted } = engine(on);
