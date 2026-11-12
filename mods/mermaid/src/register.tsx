@@ -1,4 +1,4 @@
-import { toPng } from "@h3y6e/svg2png";
+import { inlineVars, toPng } from "@h3y6e/svg2png";
 import type { EngineInterface, Register } from "claude-code";
 import { render } from "pele";
 
@@ -65,7 +65,7 @@ export const register: Register = (on) => {
               return (
                 <Box flexDirection="column">
                   <Image
-                    source={{ png: await toPng($, p.svg) }}
+                    source={{ png: await toPng($, inlineVars(p.svg)) }}
                     columns={columns}
                     rows={rows}
                     alt={p.block}

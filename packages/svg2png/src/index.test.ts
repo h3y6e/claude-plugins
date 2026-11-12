@@ -3,7 +3,7 @@ import { spawnSync } from "node:child_process";
 import { test } from "node:test";
 import { inflateSync } from "node:zlib";
 
-import { toPng } from "./index.ts";
+import { inlineVars, toPng } from "./index.ts";
 
 const PNG =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR4nGNgAAAAAgABSK+kcQAAAABJRU5ErkJggg==";
@@ -33,44 +33,41 @@ const engine = (exitCode = 0, stderr = "") => {
   return { $, runs };
 };
 
-await test("入れ子の var() とフォールバックを含む SVG を変換すると、magick には値を展開した SVG が渡る", async () => {
+await test("入れ子の var() とフォールバックを含む SVG の変数を展開すると、値を展開した SVG になる", () => {
   // Arrange
-  const { $, runs } = engine();
   const svg =
     '<svg style="--a:var(--b);--b:#123456"><rect fill="var(--a)" stroke="var(--none,var(--b))" color="var(--none,red)"/></svg>';
 
   // Act
-  await toPng($, svg);
+  const inlined = inlineVars(svg);
 
   // Assert
   assert.equal(
-    runs[0]!.stdin,
+    inlined,
     '<svg style="--a:#123456;--b:#123456"><rect fill="#123456" stroke="#123456" color="red"/></svg>',
   );
 });
 
-await test("単引用符の style 属性で変数を定義した SVG を変換すると、magick には var() を展開した SVG が渡る", async () => {
+await test("単引用符の style 属性で変数を定義した SVG の変数を展開すると、var() を展開した SVG になる", () => {
   // Arrange
-  const { $, runs } = engine();
   const svg = "<svg style='--a:#123456'><rect fill='var(--a)'/></svg>";
 
   // Act
-  await toPng($, svg);
+  const inlined = inlineVars(svg);
 
   // Assert
-  assert.equal(runs[0]!.stdin, "<svg style='--a:#123456'><rect fill='#123456'/></svg>");
+  assert.equal(inlined, "<svg style='--a:#123456'><rect fill='#123456'/></svg>");
 });
 
-await test("テキストに互いを参照する変数定義のような文字列を含む SVG を変換すると、テキストはそのまま magick に渡る", async () => {
+await test("テキストに互いを参照する変数定義のような文字列を含む SVG の変数を展開すると、テキストはそのまま残る", () => {
   // Arrange
-  const { $, runs } = engine();
   const svg = "<svg><text>--a:var(--b);--b:var(--a)</text></svg>";
 
   // Act
-  await toPng($, svg);
+  const inlined = inlineVars(svg);
 
   // Assert
-  assert.equal(runs[0]!.stdin, svg);
+  assert.equal(inlined, svg);
 });
 
 await test("magick が 0 以外で終了すると、変換はその stderr を含むエラーで失敗する", async () => {
@@ -144,7 +141,7 @@ await test("magick が data URL を返すと、変換結果はカンマより後
   assert.equal(png, PNG);
 });
 
-await test("実際の magick で、CSS カスタムプロパティで塗った SVG を変換すると、その色で塗られた PNG になる", async () => {
+await test("実際の magick で、CSS カスタムプロパティで塗った SVG を、変数を展開してから変換すると、その色で塗られた PNG になる", async () => {
   // Arrange
   const $ = {
     process: {
@@ -161,7 +158,7 @@ await test("実際の magick で、CSS カスタムプロパティで塗った S
     '<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" style="--fill:#ff0000"><rect width="4" height="4" fill="var(--fill)"/></svg>';
 
   // Act
-  const png = Buffer.from(await toPng($, svg), "base64");
+  const png = Buffer.from(await toPng($, inlineVars(svg)), "base64");
 
   // Assert
   assert.equal(png.subarray(0, 8).toString("hex"), "89504e470d0a1a0a");

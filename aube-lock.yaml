@@ -58,9 +58,6 @@ importers:
 
   packages/json-render:
     dependencies:
-      '@h3y6e/svg2png':
-        specifier: workspace:*
-        version: link:../svg2png
       '@json-render/core':
         specifier: 0.22.0
         version: 0.22.0(zod@4.6.7)

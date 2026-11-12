@@ -28,7 +28,7 @@ export const inlineVars = (svg: string) => {
 const convert = async ($: Engine, svg: string) => {
   const { exitCode, stdout, stderr } = await $.process.run(
     ["magick", "-density", "192", "-background", "none", "svg:-", "INLINE:PNG:-"],
-    { stdin: inlineVars(svg) },
+    { stdin: svg },
   );
   if (exitCode !== 0) throw new Error(`magick: ${stderr}`);
   return stdout.slice(stdout.indexOf(",") + 1);

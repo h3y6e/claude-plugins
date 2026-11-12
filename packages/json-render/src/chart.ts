@@ -1,4 +1,3 @@
-import { inlineVars } from "@h3y6e/svg2png";
 import { eastAsianWidth } from "get-east-asian-width";
 
 export const cells = (text: string) =>
@@ -139,8 +138,7 @@ export const drawImage = (src: string, alt: string): Picture | { png: string; al
     SVG_DOCTYPE,
     "",
   );
-  const read = inlineVars(source);
-  const outside = OUTSIDE.map((re) => read.match(re)?.[0]).find(Boolean);
+  const outside = OUTSIDE.map((re) => source.match(re)?.[0]).find(Boolean);
   if (outside) throw new Error(`the SVG refers to something outside itself: ${outside}`);
   const root = source.match(/<svg\b[^>]*>/)?.[0] ?? "";
   const size = (name: string) => Number(root.match(new RegExp(`\\s${name}=["']([\\d.]+)`))?.[1]);
