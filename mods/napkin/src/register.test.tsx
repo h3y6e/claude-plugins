@@ -375,6 +375,27 @@ test("ターミナルでは、Chart の SVG を magick で PNG にして Image �
   await ui.unmount();
 });
 
+test("ターミナルで、var() の値を展開すると外を参照する SVG の Image は、展開されずにそのまま magick に渡る", async ($, on) => {
+  // Arrange
+  const { converted } = engine(on);
+  const src =
+    '<svg xmlns="http://www.w3.org/2000/svg"><style>svg{--q:"}</style><image x="var(--q) href=var(--q)http://example.invalid/x"/></svg>';
+  const spec = page({
+    image: leaf("Image", {
+      src,
+      alt: "図",
+    }),
+  });
+  await $.tool.call({ tool: TOOL, title: "設定", spec } as never);
+
+  // Act
+  const ui = await $.ui.mount(pane());
+
+  // Assert
+  expect(converted).toEqual([src]);
+  await ui.unmount();
+});
+
 test("desktop では、Chart と Image を Svg 要素で描く", async ($, on) => {
   // Arrange
   const { converted } = engine(on);
