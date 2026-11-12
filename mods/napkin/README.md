@@ -13,7 +13,7 @@ claude plugin marketplace add h3y6e/claude-plugins
 claude plugin install napkin@h3y6e
 ```
 
-ターミナルで Chart と Image を画像で表示するため、[ImageMagick](https://imagemagick.org) が必要です。
+ターミナルで Chart、Image、Mermaid を画像で表示するため、[ImageMagick](https://imagemagick.org) が必要です。
 
 ## 使い方
 

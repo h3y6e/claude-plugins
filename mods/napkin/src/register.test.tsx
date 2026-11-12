@@ -320,6 +320,9 @@ const EVERY = page(
       src: '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="32"><rect width="80" height="32"/></svg>',
       alt: "四角",
     }),
+    mermaid: leaf("Mermaid", {
+      source: 'flowchart LR\n  branch --> review["url() と @import を確認"] --> merge',
+    }),
     button: leaf("Button", { label: "送信", variant: "primary" }),
     input: leaf("Input", { label: "名前", value: { $bindState: "/name" } }),
     select: leaf("Select", {
@@ -332,7 +335,7 @@ const EVERY = page(
   { tab: "a", name: "", v: "private", ci: true },
 );
 
-test("標準カタログの 21 部品をすべて使った spec を、4 つの surface のどれでも描ける", async ($, on) => {
+test("標準カタログの 22 部品をすべて使った spec を、4 つの surface のどれでも描ける", async ($, on) => {
   // Arrange
   engine(on);
   const types = new Set(Object.values(EVERY.elements).map((el) => el.type));
@@ -347,7 +350,7 @@ test("標準カタログの 21 部品をすべて使った spec を、4 つの s
   }
 
   // Assert
-  expect(types.size).toBe(21);
+  expect(types.size).toBe(22);
   expect(called).toMatchObject({ result: "Shown in the pane." });
   expect(drawn).toHaveLength(4);
 });
@@ -396,10 +399,69 @@ test("ターミナルで、var() の値を展開すると外を参照する SVG 
   await ui.unmount();
 });
 
-test("desktop では、Chart と Image を Svg 要素で描く", async ($, on) => {
+test("ターミナルでは、ラベルに url( や @import を含む Mermaid も、var() を展開した SVG から magick で PNG にして Image で描き、alt に source を入れる", async ($, on) => {
   // Arrange
   const { converted } = engine(on);
-  const spec = page({ chart: EVERY.elements.chart, image: EVERY.elements.image });
+  const spec = page({ mermaid: EVERY.elements.mermaid });
+  await $.tool.call({ tool: TOOL, title: "設定", spec } as never);
+
+  // Act
+  const ui = await $.ui.mount(pane());
+
+  // Assert
+  const image = (await ui.find({ type: "Image" }))!;
+  expect(converted).toHaveLength(1);
+  expect(converted[0]).toMatch(/^<svg [^]*>branch</);
+  expect(converted[0]).not.toContain("var(");
+  expect(image.props.source).toEqual({ png: PNG });
+  expect(image.props.alt).toBe(EVERY.elements.mermaid.props.source);
+  await ui.unmount();
+});
+
+test("mermaid として読めない source の Mermaid は、読めない理由を要素のエラーとして描く", async ($, on) => {
+  // Arrange
+  const { converted } = engine(on);
+  const spec = page({ mermaid: leaf("Mermaid", { source: "flowchart LR\n  branch -->" }) });
+  await $.tool.call({ tool: TOOL, title: "設定", spec } as never);
+
+  // Act
+  const ui = await $.ui.mount(pane());
+
+  // Assert
+  const error = await ui.find({ type: "Text", text: /^mermaid \(Mermaid\): Parse error/ });
+  expect(error?.props.color).toBe("red");
+  expect(converted).toEqual([]);
+  await ui.unmount();
+});
+
+test("ターミナルで、外の URL の画像を置く Mermaid は、magick に渡さず、その URL を示すエラーを描く", async ($, on) => {
+  // Arrange
+  const { converted } = engine(on);
+  const source = 'flowchart LR\n  A@{ img: "http://example.invalid/x.png", label: "a" } --> B';
+  const spec = page({ mermaid: leaf("Mermaid", { source }) });
+  await $.tool.call({ tool: TOOL, title: "設定", spec } as never);
+
+  // Act
+  const ui = await $.ui.mount(pane());
+
+  // Assert
+  const error = await ui.find({ type: "Text", text: /^mermaid \(Mermaid\): / });
+  expect(error?.text).toBe(
+    "mermaid (Mermaid): the SVG refers to an image outside itself: http://example.invalid/x.png",
+  );
+  expect(error?.props.color).toBe("red");
+  expect(converted).toEqual([]);
+  await ui.unmount();
+});
+
+test("desktop では、Chart と Image と Mermaid を Svg 要素で描く", async ($, on) => {
+  // Arrange
+  const { converted } = engine(on);
+  const spec = page({
+    chart: EVERY.elements.chart,
+    image: EVERY.elements.image,
+    mermaid: EVERY.elements.mermaid,
+  });
   await $.tool.call({ tool: TOOL, title: "設定", spec } as never);
 
   // Act
@@ -407,7 +469,11 @@ test("desktop では、Chart と Image を Svg 要素で描く", async ($, on) =
 
   // Assert
   const svgs = await ui.findAll({ type: "Svg" });
-  expect(svgs.map((s) => s.props.alt)).toEqual([expect.stringMatching(/^p95\n/), "四角"]);
+  expect(svgs.map((s) => s.props.alt)).toEqual([
+    expect.stringMatching(/^p95\n/),
+    "四角",
+    EVERY.elements.mermaid.props.source,
+  ]);
   expect(converted).toEqual([]);
   await ui.unmount();
 });

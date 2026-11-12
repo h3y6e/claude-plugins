@@ -59,17 +59,14 @@ export const register: Register = (on) => {
           {await Promise.all(
             rest.map(async (p) => {
               if (typeof p === "string") return p.trim() ? <Markdown text={p.trim()} /> : null;
+              const png = await toPng($, inlineVars(p.svg)).catch(() => undefined);
+              if (!png) return <Markdown text={p.block} />;
               const scale = Math.min(1, room / (p.width / 8), 255 / (p.height / 16));
               const columns = Math.ceil((p.width / 8) * scale);
               const rows = Math.ceil((p.height / 16) * scale);
               return (
                 <Box flexDirection="column">
-                  <Image
-                    source={{ png: await toPng($, inlineVars(p.svg)) }}
-                    columns={columns}
-                    rows={rows}
-                    alt={p.block}
-                  />
+                  <Image source={{ png }} columns={columns} rows={rows} alt={p.block} />
                   <Markdown text={p.link} />
                 </Box>
               );

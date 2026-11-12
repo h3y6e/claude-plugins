@@ -144,6 +144,11 @@ export const standardComponentDefinitions = {
     slots: [],
     description: "Image from SVG markup or a data:image/svg+xml or data:image/png URL.",
   },
+  Mermaid: {
+    props: z.object({ source: z.string() }),
+    slots: [],
+    description: "Diagram from mermaid source, such as a flowchart or sequence diagram.",
+  },
   Button: {
     props: z.object({ label: z.string(), variant: optional(z.enum(["primary", "secondary"])) }),
     events: ["press"],

@@ -81,6 +81,23 @@ await test("magick が 0 以外で終了すると、変換はその stderr を�
   assert.deepEqual(error, new Error("magick: no decode delegate"));
 });
 
+await test("外の URL を参照する image を含む SVG を変換すると、magick を実行せず、その URL を示すエラーで失敗する", async () => {
+  // Arrange
+  const { $, runs } = engine();
+  const svg =
+    '<svg><image href="data:image/png;base64,AAAA"/><use href="#a"/><image x="0" xlink:href="http://example.invalid/x.png"/></svg>';
+
+  // Act
+  const error = await toPng($, svg).catch((e: unknown) => e);
+
+  // Assert
+  assert.deepEqual(
+    error,
+    new Error("the SVG refers to an image outside itself: http://example.invalid/x.png"),
+  );
+  assert.equal(runs.length, 0);
+});
+
 await test("変換し終えた SVG をもう一度変換すると、magick は再実行されない", async () => {
   // Arrange
   const { $, runs } = engine();

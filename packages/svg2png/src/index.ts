@@ -37,6 +37,10 @@ const convert = async ($: Engine, svg: string) => {
 const pngs = new Map<string, string>();
 
 export const toPng = async ($: Engine, svg: string) => {
+  const outside = svg.match(
+    /<image\b[^>]*?\s(?:xlink:)?href\s*=\s*(["'])\s*(?!data:|#)([^"']*)\1/i,
+  );
+  if (outside) throw new Error(`the SVG refers to an image outside itself: ${outside[2]}`);
   if (!pngs.has(svg)) pngs.set(svg, await convert($, svg));
   return pngs.get(svg)!;
 };
