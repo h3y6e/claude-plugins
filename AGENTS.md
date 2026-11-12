@@ -1,1 +1,2 @@
 - Type-aware lint needs `mods/*/.claude-plugin/types/`, which only `claude --plugin-dir mods/<mod>` (interactive) writes.
+- In text that lands on GitHub (commit messages, PR and issue titles and bodies, review comments), put every @-prefixed token such as `@import` or `@scope/pkg` in backticks: a bare one mentions a GitHub user, and squash merges carry commit bodies into main.
