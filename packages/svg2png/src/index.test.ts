@@ -49,6 +49,18 @@ await test("入れ子の var() とフォールバックを含む SVG を変換�
   );
 });
 
+await test("単引用符の style 属性で変数を定義した SVG を変換すると、magick には var() を展開した SVG が渡る", async () => {
+  // Arrange
+  const { $, runs } = engine();
+  const svg = "<svg style='--a:#123456'><rect fill='var(--a)'/></svg>";
+
+  // Act
+  await toPng($, svg);
+
+  // Assert
+  assert.equal(runs[0]!.stdin, "<svg style='--a:#123456'><rect fill='#123456'/></svg>");
+});
+
 await test("テキストに互いを参照する変数定義のような文字列を含む SVG を変換すると、テキストはそのまま magick に渡る", async () => {
   // Arrange
   const { $, runs } = engine();

@@ -88,3 +88,14 @@ await test("SVG 1.1 の標準の DOCTYPE は取り除いて描き、内部サブ
   assert.deepEqual(picture, { svg: body, width: 80, height: 32, alt: "図" });
   assert.throws(draw, /refers to something outside itself: <!DOCTYPE/);
 });
+
+await test("属性が単引用符で幅と高さのない SVG の Image は、viewBox の幅と高さで描く", () => {
+  // Arrange
+  const svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1180 520'/>";
+
+  // Act
+  const picture = drawImage(svg, "図");
+
+  // Assert
+  assert.deepEqual(picture, { svg, width: 1180, height: 520, alt: "図" });
+});
