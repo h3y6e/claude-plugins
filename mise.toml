@@ -2,7 +2,7 @@
 aube = "v2.9.0"
 claude = "2.1.318"
 imagemagick = "7.1.2_31"
-jactionlint = "v2.4.0"
+jactionlint = "v2.5.0"
 node = "26.13.1"
 
 [tasks.test]
