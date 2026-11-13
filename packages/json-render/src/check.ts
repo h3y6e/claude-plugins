@@ -47,7 +47,11 @@ const propIssues = (catalog: Catalog, spec: Spec, id: string, el: Element) => {
   }
 };
 
-const diagramIssues = (at: string, source: string): Issue[] => {
+const diagramIssues = (spec: Spec, id: string, el: Element): Issue[] => {
+  if (el.type !== "Mermaid") return [];
+  const { source } = resolveElementProps(el.props, { stateModel: spec.state ?? {} });
+  if (typeof source !== "string") return [];
+  const at = `elements.${id}`;
   let width: number;
   try {
     ({ width } = mermaid(source));
@@ -58,7 +62,7 @@ const diagramIssues = (at: string, source: string): Issue[] => {
     ? [
         {
           isError: true,
-          text: `${at}: the diagram is ${Math.round(width)}px wide and the pane fits ${MERMAID_WIDTH}px before shrinking it unreadably; split it into smaller diagrams or drop detail`,
+          text: `${at}: the diagram is ${Math.ceil(width)}px wide and the pane fits ${MERMAID_WIDTH}px before shrinking it unreadably; split it into smaller diagrams or drop detail`,
         },
       ]
     : [];
@@ -68,9 +72,6 @@ const limits = (id: string, el: Element, hasFunctions: boolean): Issue[] => {
   const at = `elements.${id}`;
   const bindings = Object.values(el.on ?? {}).flat();
   return [
-    ...(el.type === "Mermaid" && typeof el.props.source === "string"
-      ? diagramIssues(at, el.props.source)
-      : []),
     ...(!hasFunctions && uses(el, "$computed")
       ? [
           {
@@ -112,6 +113,7 @@ export const check = (catalog: Catalog, spec: Spec, options: { functions?: objec
       isError: i.severity === "error",
       text: `${i.elementKey ? `elements.${i.elementKey}: ` : ""}${i.message}`,
     })),
+    ...elements.flatMap(([id, el]) => diagramIssues(spec, id, el)),
     ...elements.flatMap(([id, el]) => limits(id, el, Boolean(options.functions))),
   ];
   return {
