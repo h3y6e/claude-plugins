@@ -435,20 +435,19 @@ test("ターミナルで、縦に長い Mermaid は、高さを 255 行に収め
   await ui.unmount();
 });
 
-test("mermaid として読めない source の Mermaid は、読めない理由を要素のエラーとして描く", async ($, on) => {
+test("mermaid として読めない source の Mermaid を渡すと、描かずに読めない理由が返る", async ($, on) => {
   // Arrange
-  const { converted } = engine(on);
+  const { opened } = engine(on);
   const spec = page({ mermaid: leaf("Mermaid", { source: "flowchart LR\n  branch -->" }) });
-  await $.tool.call({ tool: TOOL, title: "設定", spec } as never);
 
   // Act
-  const ui = await $.ui.mount(pane());
+  const called = await $.tool.call({ tool: TOOL, title: "設定", spec } as never);
 
   // Assert
-  const error = await ui.find({ type: "Text", text: /^mermaid \(Mermaid\): Parse error/ });
-  expect(error?.props.color).toBe("red");
-  expect(converted).toEqual([]);
-  await ui.unmount();
+  expect((called as { result: string }).result).toMatch(
+    /^Invalid spec:\nelements\.mermaid\.props\.source: Parse error/,
+  );
+  expect(opened).toEqual([]);
 });
 
 test("ターミナルで、外の URL の画像を置く Mermaid は、magick に渡さず、image を拒んだエラーを描く", async ($, on) => {

@@ -147,7 +147,8 @@ export const standardComponentDefinitions = {
   Mermaid: {
     props: z.object({ source: z.string() }),
     slots: [],
-    description: "Diagram from mermaid source, such as a flowchart or sequence diagram.",
+    description:
+      "Diagram from mermaid source, such as a flowchart or sequence diagram. Keep each to a few nodes with short labels; put detail in separate diagrams or a Table.",
   },
   Button: {
     props: z.object({ label: z.string(), variant: optional(z.enum(["primary", "secondary"])) }),
