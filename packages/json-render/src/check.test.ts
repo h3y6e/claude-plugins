@@ -73,3 +73,26 @@ await test("組み込みアクションに confirm を付けた spec を調べ�
     "elements.b.on removeState: confirm is not shown for built-in actions",
   ]);
 });
+
+await test("pane に縮めず収まらない幅の Mermaid を含む spec を調べると、幅と分け方がエラーとして返り、収まる Mermaid は通る", () => {
+  // Arrange
+  const wide = page({
+    m: {
+      type: "Mermaid",
+      props: {
+        source: `flowchart LR\n${Array.from({ length: 8 }, (_, i) => `  s${i}[step ${i}] --> s${i + 1}[step ${i + 1}]`).join("\n")}`,
+      },
+    },
+  });
+  const narrow = page({
+    m: { type: "Mermaid", props: { source: "flowchart LR\n  a[order] --> b[pay] --> c[ship]" } },
+  });
+
+  // Act
+  const { errors: wideErrors } = check(catalog, wide);
+  const { errors: narrowErrors } = check(catalog, narrow);
+
+  // Assert
+  assert.match(wideErrors.join("\n"), /^elements\.m: the diagram is \d+px wide .* split it/);
+  assert.deepEqual(narrowErrors, []);
+});

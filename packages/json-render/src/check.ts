@@ -1,5 +1,6 @@
 import { getByPath, resolveElementProps, setByPath, validateSpec } from "@json-render/core";
 import type { Catalog, Spec } from "@json-render/core";
+import { render as mermaid } from "pele";
 import type { ZodObject } from "zod";
 
 import { BUILT_IN } from "./actions.ts";
@@ -14,6 +15,8 @@ const uses = (value: unknown, key: string): boolean =>
   typeof value === "object" &&
   value !== null &&
   Object.entries(value).some(([k, v]) => k === key || uses(v, key));
+
+const MERMAID_WIDTH = 640;
 
 const pointer = (path: PropertyKey[]) => `/${path.join("/")}`;
 
@@ -42,6 +45,27 @@ const propIssues = (catalog: Catalog, spec: Spec, id: string, el: Element) => {
       setByPath(value, at, null);
     }
   }
+};
+
+const diagramIssues = (spec: Spec, id: string, el: Element): Issue[] => {
+  if (el.type !== "Mermaid") return [];
+  const { source } = resolveElementProps(el.props, { stateModel: spec.state ?? {} });
+  if (typeof source !== "string") return [];
+  const at = `elements.${id}`;
+  let width: number;
+  try {
+    ({ width } = mermaid(source));
+  } catch (error) {
+    return [{ isError: true, text: `${at}.props.source: ${(error as Error).message}` }];
+  }
+  return width > MERMAID_WIDTH
+    ? [
+        {
+          isError: true,
+          text: `${at}: the diagram is ${Math.ceil(width)}px wide and the pane fits ${MERMAID_WIDTH}px before shrinking it unreadably; split it into smaller diagrams or drop detail`,
+        },
+      ]
+    : [];
 };
 
 const limits = (id: string, el: Element, hasFunctions: boolean): Issue[] => {
@@ -89,6 +113,7 @@ export const check = (catalog: Catalog, spec: Spec, options: { functions?: objec
       isError: i.severity === "error",
       text: `${i.elementKey ? `elements.${i.elementKey}: ` : ""}${i.message}`,
     })),
+    ...elements.flatMap(([id, el]) => diagramIssues(spec, id, el)),
     ...elements.flatMap(([id, el]) => limits(id, el, Boolean(options.functions))),
   ];
   return {
