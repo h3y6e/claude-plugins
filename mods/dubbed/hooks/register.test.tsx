@@ -12,7 +12,7 @@ const reply = (text: string) =>
 
 const source = (prompt: string) =>
   prompt.match(
-    /<\|plamo:tag\|>input<\|plamo:msg\|>([^<]*)<\|plamo:tag\|>output<\|plamo:key\|>lang<\|plamo:val\|>[a-z]+<\|plamo:msg\|>$/,
+    /<\|plamo:tag\|>input<\|plamo:msg\|>((?:(?!<\|plamo:)[\s\S])*)<\|plamo:tag\|>output<\|plamo:key\|>lang<\|plamo:val\|>[a-z]+<\|plamo:msg\|>$/,
   )![1]!;
 
 const engine = (
@@ -278,6 +278,42 @@ test("プロンプトと前の訳に続く返信では、プロンプトが文�
       "<|plamo:tag|>output<|plamo:key|>lang<|plamo:val|>ja<|plamo:msg|>",
   );
   await second.unmount();
+});
+
+test("訳の後に空行と原文に無い <br> が続くと、訳は最初の段落だけになり、その組は次の段落の履歴に送られない", async ($, on) => {
+  // Arrange
+  const { prompts } = engine(on, {
+    "The build is running; I'll wait for the result.":
+      "ビルドを実行中です。結果を待ちます。\n\n<br>\n\n<br>",
+    "Done.": "完了。",
+  });
+  const first = await $.ui.mount(reply("The build is running; I'll wait for the result."));
+  const translated = (await first.find({ type: "Text", text: /ビルド/ }))?.text;
+  await first.unmount();
+
+  // Act
+  const second = await $.ui.mount(reply("Done."));
+
+  // Assert
+  expect(translated).toBe("ビルドを実行中です。結果を待ちます。");
+  expect(prompts[1]).not.toContain("ビルド");
+  await second.unmount();
+});
+
+test("訳に原文に無い HTML タグが含まれると、そのタグだけが消え、原文にあるタグは残る", async ($, on) => {
+  // Arrange
+  engine(on, {
+    "Press <kbd>Enter</kbd> to continue.": "<kbd>Enter</kbd> を押して続行します。<br>",
+  });
+
+  // Act
+  const ui = await $.ui.mount(reply("Press <kbd>Enter</kbd> to continue."));
+
+  // Assert
+  expect((await ui.find({ type: "Text", text: /続行/ }))?.text).toBe(
+    "<kbd>Enter</kbd> を押して続行します。",
+  );
+  await ui.unmount();
 });
 
 test("画面外で描画された返信は、翻訳に送られない", async ($, on) => {
