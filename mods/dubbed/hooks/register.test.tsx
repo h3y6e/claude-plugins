@@ -280,6 +280,26 @@ test("プロンプトと前の訳に続く返信では、プロンプトが文�
   await second.unmount();
 });
 
+test("訳の後に空行と原文に無い <br> が続くと、訳は最初の段落だけになり、その組は次の段落の履歴に送られない", async ($, on) => {
+  // Arrange
+  const { prompts } = engine(on, {
+    "The build is running; I'll wait for the result.":
+      "ビルドを実行中です。結果を待ちます。\n\n<br>\n\n<br>",
+    "Done.": "完了。",
+  });
+  const first = await $.ui.mount(reply("The build is running; I'll wait for the result."));
+  const translated = (await first.find({ type: "Text", text: /ビルド/ }))?.text;
+  await first.unmount();
+
+  // Act
+  const second = await $.ui.mount(reply("Done."));
+
+  // Assert
+  expect(translated).toBe("ビルドを実行中です。結果を待ちます。");
+  expect(prompts[1]).not.toContain("ビルド");
+  await second.unmount();
+});
+
 test("画面外で描画された返信は、翻訳に送られない", async ($, on) => {
   // Arrange
   const { prompts } = engine(on, { "I fixed the tests.": "テストを修正しました。" });

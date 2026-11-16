@@ -6,6 +6,8 @@ const CONTEXT = 300;
 const PENDING = 8;
 const FENCE = /^(`{3,}[^\n]*\n(?:[\s\S]*?\n)?`{3,})[ \t]*$/m;
 const GAP = /(\s*\n\s*\n\s*|^\s+|\s+$)/;
+const BLANK = /\n\s*\n/;
+const TAG = /<\/?[a-z][^<>]*>/gi;
 const CODE = /`[^`\n]*`/g;
 const QUOTE = /「[^」\n]*」/g;
 const HIRAGANA = /\p{Script=Hiragana}+/gu;
@@ -77,10 +79,16 @@ const translate = async ($: EngineInterface, source: string) => {
     }),
   });
   if (!res.ok) throw new Error(`${server.endpoint}: ${res.status} ${res.text}`);
-  const target = (JSON.parse(res.text) as { choices: [{ text: string }] }).choices[0].text.trim();
+  const output = (JSON.parse(res.text) as { choices: [{ text: string }] }).choices[0].text.trim();
+  const target = output
+    .split(BLANK, 1)[0]!
+    .replace(TAG, (tag) => (source.includes(tag) ? tag : ""))
+    .trim();
   if (!target) throw new Error(`${server.endpoint}: empty translation`);
-  history.push([source, target]);
-  history.splice(0, history.length - HISTORY);
+  if (target === output) {
+    history.push([source, target]);
+    history.splice(0, history.length - HISTORY);
+  }
   return target;
 };
 
