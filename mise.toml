@@ -1,5 +1,5 @@
 [tools]
-aube = "v2.9.0"
+aube = "v2.10.1"
 claude = "2.1.318"
 imagemagick = "7.1.2_31"
 jactionlint = "v2.4.0"
